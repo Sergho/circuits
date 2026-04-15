@@ -1,6 +1,6 @@
 public class Graph
 {
-    private List<int>[] adjacencyList;
+    private readonly List<int>[] adjacencyList;
 
     public int VerticesCount { get; private set; }
     public int EdgesCount { get; private set; }
