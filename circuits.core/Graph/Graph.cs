@@ -1,11 +1,11 @@
 using System.Collections;
 
-public class Graph : IEnumerable<(int, int)>
+public class Graph : IEnumerable<Edge>
 {
-    private readonly List<int>[] adjacencyList;
+    private readonly HashSet<Edge> edges;
 
     public int VerticesCount { get; private set; }
-    public int EdgesCount { get; private set; }
+    public int EdgesCount { get => edges.Count; }
 
     public static Graph Empty(int verticesCount)
     {
@@ -15,45 +15,19 @@ public class Graph : IEnumerable<(int, int)>
     private Graph(int verticesCount)
     {
         VerticesCount = verticesCount;
-        EdgesCount = 0;
-
-        adjacencyList = getEmptyAdjencyList();
+        edges = [];
     }
 
-    private List<int>[] getEmptyAdjencyList()
+    public void AddEdge(Edge edge)
     {
-        var result = new List<int>[VerticesCount];
-
-        for (int i = 0; i < VerticesCount; i++)
-        {
-            adjacencyList[i] = [];
-        }
-
-        return result;
+        if (edges.Contains(edge)) return;
+        
+        edges.Add(edge);
     }
 
-    public void AddEdge(int firstVertex, int secondVertex)
+    public IEnumerator<Edge> GetEnumerator()
     {
-        if (!adjacencyList[firstVertex].Contains(secondVertex))
-        {
-            adjacencyList[firstVertex].Add(secondVertex);
-            adjacencyList[secondVertex].Add(firstVertex);
-
-            EdgesCount++;
-        }
-    }
-
-    public IEnumerator<(int, int)> GetEnumerator()
-    {
-        for (int vertexIndex = 0; vertexIndex < VerticesCount; vertexIndex++)
-        {
-            foreach (var neighbor in adjacencyList[vertexIndex])
-            {
-                if (vertexIndex >= neighbor) continue;
-                
-                yield return (vertexIndex, neighbor);
-            }
-        }
+        return edges.GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator()

@@ -16,9 +16,6 @@ public class RandomGraphGenerator : GraphGenerator
     {
         Graph graph = GetEmptyGraph();
 
-        if (edgesCount == 0)
-            return graph;
-
         FillGraph(graph);
 
         return graph;
@@ -31,26 +28,15 @@ public class RandomGraphGenerator : GraphGenerator
 
     private void FillGraph(Graph graph)
     {
-        var existingEdges = new HashSet<(int, int)>();
-        while (existingEdges.Count < edgesCount)
+        while (graph.EdgesCount < edgesCount)
         {
-            int firstVertex = random.Next(verticesCount);
-            int secondVertex = random.Next(verticesCount);
+            var firstVertex = new Vertex(random.Next(verticesCount));
+            var secondVertex = new Vertex(random.Next(verticesCount));
 
             if (firstVertex == secondVertex)
                 continue;
 
-            var edge = GetEdge(firstVertex, secondVertex);
-
-            if(existingEdges.Contains(edge)) continue;
-
-            existingEdges.Add(edge);
-            graph.AddEdge(firstVertex, secondVertex);
+            graph.AddEdge(new Edge(firstVertex, secondVertex));
         }
-    }
-
-    private (int, int) GetEdge(int firstVertex, int secondVertex)
-    {
-        return firstVertex < secondVertex ? (firstVertex, secondVertex) : (secondVertex, firstVertex);
     }
 }
