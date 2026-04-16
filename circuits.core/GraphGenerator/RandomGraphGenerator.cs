@@ -33,7 +33,7 @@ public class RandomGraphGenerator : GraphGenerator
             var firstVertex = new Vertex(random.Next(1, verticesCount + 1));
             var secondVertex = new Vertex(random.Next(1, verticesCount + 1));
 
-            if (firstVertex == secondVertex)
+            if (firstVertex.Equals(secondVertex))
                 continue;
 
             graph.AddEdge(new Edge(firstVertex, secondVertex));

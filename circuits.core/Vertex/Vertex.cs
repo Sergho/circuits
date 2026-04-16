@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-
 public class Vertex : IComparable<Vertex>, IEquatable<Vertex>
 {
     public int Index { get; }
@@ -24,5 +22,10 @@ public class Vertex : IComparable<Vertex>, IEquatable<Vertex>
         if (other is null) return 1;
 
         return Index.CompareTo(other.Index);
+    }
+
+    public override int GetHashCode()
+    {
+        return Index.GetHashCode();
     }
 }

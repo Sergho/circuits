@@ -24,7 +24,7 @@ public class Edge : IEquatable<Edge>
         var thisNormalized = GetNormalized();
         var otherNormalized = other.GetNormalized();
 
-        return thisNormalized.First == otherNormalized.First && thisNormalized.Second == otherNormalized.Second;
+        return thisNormalized.First.Equals(otherNormalized.First) && thisNormalized.Second.Equals(otherNormalized.Second);
     }
 
     public override int GetHashCode()
