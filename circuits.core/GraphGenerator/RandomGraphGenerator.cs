@@ -30,8 +30,8 @@ public class RandomGraphGenerator : GraphGenerator
     {
         while (graph.EdgesCount < edgesCount)
         {
-            var firstVertex = new Vertex(random.Next(verticesCount));
-            var secondVertex = new Vertex(random.Next(verticesCount));
+            var firstVertex = new Vertex(random.Next(1, verticesCount + 1));
+            var secondVertex = new Vertex(random.Next(1, verticesCount + 1));
 
             if (firstVertex == secondVertex)
                 continue;

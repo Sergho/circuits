@@ -2,6 +2,10 @@
 {
     public static void Main()
     {
-        Console.WriteLine("Hello, world!");
+        var generator = new RandomGraphGenerator(10, 20);
+        var graph = generator.Generate();
+        var logger = new GraphLogger("./graph.txt");
+        
+        logger.Log(graph);
     }
 }
