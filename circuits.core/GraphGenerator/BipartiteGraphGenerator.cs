@@ -71,18 +71,14 @@ public class BipartiteGraphGenerator : GraphGenerator
     private List<Edge> GenerateAllPossibleEdges()
     {
         var edges = new List<Edge>();
-        var leftVertices = Enumerable.Range(1, leftPartitionSize)
-            .Select(id => new Vertex(id))
-            .ToList();
-        var rightVertices = Enumerable.Range(leftPartitionSize + 1, rightPartitionSize)
-            .Select(id => new Vertex(id))
-            .ToList();
-
-        foreach (var leftVertex in leftVertices)
+        for (int i = 1; i <= leftPartitionSize; i++)
         {
-            foreach (var rightVertex in rightVertices)
+            for (int j = leftPartitionSize + 1; j <= leftPartitionSize + rightPartitionSize; j++)
             {
-                edges.Add(new Edge(leftVertex, rightVertex));
+                var firstVertex = new Vertex(i);
+                var secondVertex = new Vertex(j);
+
+                edges.Add(new Edge(firstVertex, secondVertex));
             }
         }
 
