@@ -54,7 +54,6 @@ public class FisherYatesGraphGenerator : GraphGenerator
         var allEdges = GenerateAllEdges();
         var result = new List<Edge>();
 
-        // Алгоритм Фишера‑Йетса для равномерного выбора
         for (int i = 0; i < edgesCount; i++)
         {
             int randomEdgeIndex = random.Next(allEdges.Count - i);
@@ -73,10 +72,10 @@ public class FisherYatesGraphGenerator : GraphGenerator
         {
             for (int j = i + 1; j <= verticesCount; j++)
             {
-                var vertexI = new Vertex(i);
-                var vertexJ = new Vertex(j);
+                var firstVertex = new Vertex(i);
+                var secondVertex = new Vertex(j);
 
-                edges.Add(new Edge(vertexI, vertexJ));
+                edges.Add(new Edge(firstVertex, secondVertex));
             }
         }
 
