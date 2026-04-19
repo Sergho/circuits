@@ -6,10 +6,25 @@ public class RandomGraphGenerator : GraphGenerator
 
     public RandomGraphGenerator(int verticesCount, int edgesCount)
     {
+        var paramsError = GetParamsError(verticesCount, edgesCount);
+        if (paramsError != null)
+            throw paramsError;
+
         this.verticesCount = verticesCount;
         this.edgesCount = edgesCount;
-
         random = new();
+    }
+
+    private Exception? GetParamsError(int verticesCount, double edgesCount)
+    {
+        if (verticesCount < 0)
+            return new ArgumentException("Количество вершин в графе не может быть отрицательным");
+
+        int maxEdges = verticesCount * (verticesCount - 1) / 2;
+        if (edgesCount < 0 || edgesCount > maxEdges)
+            return new ArgumentException($"Количество ребер в графе должно быть между 0 и {maxEdges}");
+
+        return null;
     }
 
     public Graph Generate()
@@ -27,15 +42,45 @@ public class RandomGraphGenerator : GraphGenerator
 
     private void FillGraph(Graph graph)
     {
-        while (graph.EdgesCount < edgesCount)
+        foreach (var edge in GenerateRandomEdges())
         {
-            var firstVertex = new Vertex(random.Next(1, verticesCount + 1));
-            var secondVertex = new Vertex(random.Next(1, verticesCount + 1));
-
-            if (firstVertex.Equals(secondVertex))
-                continue;
-
-            graph.AddEdge(new Edge(firstVertex, secondVertex));
+            graph.AddEdge(edge);
         }
     }
+
+    
+    private List<Edge> GenerateRandomEdges()
+    {
+        var allEdges = GenerateAllEdges();
+        var result = new List<Edge>();
+
+        // Алгоритм Фишера‑Йетса для равномерного выбора
+        for (int i = 0; i < edgesCount; i++)
+        {
+            int randomEdgeIndex = random.Next(allEdges.Count - i);
+            result.Add(allEdges[randomEdgeIndex]);
+            allEdges[randomEdgeIndex] = allEdges[allEdges.Count - 1 - i];
+        }
+
+        return result;
+    }
+
+    private List<Edge> GenerateAllEdges()
+    {
+        var edges = new List<Edge>();
+
+        for (int i = 1; i <= verticesCount; i++)
+        {
+            for (int j = i + 1; j <= verticesCount; j++)
+            {
+                var vertexI = new Vertex(i);
+                var vertexJ = new Vertex(j);
+
+                edges.Add(new Edge(vertexI, vertexJ));
+            }
+        }
+
+        return edges;
+    }
+
 }

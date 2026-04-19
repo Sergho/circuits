@@ -2,7 +2,7 @@
 {
     public static void Main()
     {
-        var generator = new ErdosRenyiProbabilityGenerator(10, 1);
+        var generator = new RandomGraphGenerator(10, 20);
         var graph = generator.Generate();
         var logger = new GraphLogger("./graph.txt");
         

@@ -6,12 +6,24 @@ public class ErdosRenyiProbabilityGenerator : GraphGenerator
 
     public ErdosRenyiProbabilityGenerator(int verticesCount, double edgeProbability)
     {
-        if (edgeProbability < 0 || edgeProbability > 1)
-            throw new ArgumentException("Вероятность появления ребра должна быть между 0 и 1");
+        var paramsError = GetParamsError(verticesCount, edgeProbability);
+        if (paramsError != null)
+            throw paramsError;
 
         this.verticesCount = verticesCount;
         this.edgeProbability = edgeProbability;
+        
         random = new();
+    }
+
+    private Exception? GetParamsError(int verticesCount, double edgeProbability)
+    {
+        if (verticesCount < 0)
+            return new ArgumentException("Количество вершин в графе не может быть отрицательным");
+        if (edgeProbability < 0 || edgeProbability > 1)
+            return new ArgumentException("Вероятность появления ребра должна быть между 0 и 1");
+
+        return null;
     }
 
     public Graph Generate()
