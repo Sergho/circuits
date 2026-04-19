@@ -2,7 +2,7 @@
 {
     public static void Main()
     {
-        var generator = new BipartiteGraphGenerator(10, 20, 40);
+        var generator = new CliqueGraphGenerator(10);
         var graph = generator.Generate();
         var logger = new GraphLogger("./graph.txt");
         
