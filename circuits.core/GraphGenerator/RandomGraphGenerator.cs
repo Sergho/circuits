@@ -1,10 +1,10 @@
-public class RandomGraphGenerator : GraphGenerator
+public class FisherYatesGraphGenerator : GraphGenerator
 {
     private readonly int verticesCount;
     private readonly int edgesCount;
     private readonly Random random;
 
-    public RandomGraphGenerator(int verticesCount, int edgesCount)
+    public FisherYatesGraphGenerator(int verticesCount, int edgesCount)
     {
         var paramsError = GetParamsError(verticesCount, edgesCount);
         if (paramsError != null)
