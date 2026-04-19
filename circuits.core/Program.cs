@@ -2,7 +2,7 @@
 {
     public static void Main()
     {
-        var generator = new ChainGraphGenerator(10);
+        var generator = new RegularGridGraphGenerator(10, 20);
         var graph = generator.Generate();
         var logger = new GraphLogger("./graph.txt");
         
