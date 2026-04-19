@@ -27,7 +27,7 @@ public class BipartiteGraphGenerator : GraphGenerator
 
         int maxEdges = leftSize * rightSize;
         if (edgeCount < 0 || edgeCount > maxEdges)
-            return new ArgumentException($"Количество рёбер в двудольном графе должно быть между 0 и {maxEdges}");
+            return new ArgumentException($"Количество рёбер в графе должно быть между 0 и {maxEdges}");
 
         return null;
     }

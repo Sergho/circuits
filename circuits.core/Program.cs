@@ -2,7 +2,7 @@
 {
     public static void Main()
     {
-        var generator = new CliqueGraphGenerator(10);
+        var generator = new ChainGraphGenerator(10);
         var graph = generator.Generate();
         var logger = new GraphLogger("./graph.txt");
         

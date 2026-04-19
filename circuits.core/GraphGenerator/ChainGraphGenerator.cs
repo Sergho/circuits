@@ -1,8 +1,8 @@
-public class CliqueGraphGenerator : GraphGenerator
+public class ChainGraphGenerator : GraphGenerator
 {
     private readonly int verticesCount;
 
-    public CliqueGraphGenerator(int verticesCount)
+    public ChainGraphGenerator(int verticesCount)
     {
         var paramsError = GetParamsError(verticesCount);
         if (paramsError != null)
@@ -34,15 +34,14 @@ public class CliqueGraphGenerator : GraphGenerator
 
     private void FillGraph(Graph graph)
     {
-        for (int i = 1; i <= verticesCount; i++)
+        for (int i = 1; i < verticesCount; i++)
         {
-            for (int j = i + 1; j <= verticesCount; j++)
-            {
-                var firstVertex = new Vertex(i);
-                var secondVertex = new Vertex(j);
+            var firstVertex = new Vertex(i);
+            var secondVertex = new Vertex(i + 1);
 
-                graph.AddEdge(new Edge(firstVertex, secondVertex));
-            }
+            graph.AddEdge(new Edge(firstVertex, secondVertex));
         }
+
+        graph.AddEdge(new Edge(new Vertex(verticesCount), new Vertex(1)));
     }
 }
