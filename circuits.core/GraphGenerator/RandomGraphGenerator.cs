@@ -15,7 +15,6 @@ public class RandomGraphGenerator : GraphGenerator
     public Graph Generate()
     {
         Graph graph = GetEmptyGraph();
-
         FillGraph(graph);
 
         return graph;
