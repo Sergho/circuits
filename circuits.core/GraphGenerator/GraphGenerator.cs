@@ -1,4 +1,4 @@
 public interface GraphGenerator
 {
-    Graph Generate();
+    IGraph Generate();
 }

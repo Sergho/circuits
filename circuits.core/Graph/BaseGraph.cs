@@ -32,14 +32,6 @@ public class BaseGraph : IGraph
         }
     }
 
-    public void AddEdge(Edge edge)
-    {
-        if (edges.Contains(edge)) return;
-        if (!vertices.Contains(edge.First) || !vertices.Contains(edge.Second)) return;
-        
-        edges.Add(edge);
-    }
-
     public bool HasVertex(Vertex vertex)
     {
         return vertices.Contains(vertex);
@@ -48,5 +40,13 @@ public class BaseGraph : IGraph
     public bool HasEdge(Edge edge)
     {
         return edges.Contains(edge);
+    }
+
+    public void AddEdge(Edge edge)
+    {
+        if (edges.Contains(edge)) return;
+        if (!vertices.Contains(edge.First) || !vertices.Contains(edge.Second)) return;
+        
+        edges.Add(edge);
     }
 }

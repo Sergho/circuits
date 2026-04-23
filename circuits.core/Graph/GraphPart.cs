@@ -1,4 +1,4 @@
-public class GraphPart : IGraph
+public class GraphPart : IReadonlyGraph
 {
     private readonly IGraph parent;
     private readonly HashSet<Vertex> vertices;

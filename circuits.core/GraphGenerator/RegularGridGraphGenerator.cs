@@ -23,20 +23,20 @@ public class RegularGridGraphGenerator : GraphGenerator
         return null;
     }
 
-    public Graph Generate()
+    public IGraph Generate()
     {
-        Graph graph = GetEmptyGraph();
+        IGraph graph = GetEmptyGraph();
         FillGraph(graph);
 
         return graph;
     }
 
-    private Graph GetEmptyGraph()
+    private IGraph GetEmptyGraph()
     {
-        return Graph.Empty(rowsCount * colsCount);
+        return BaseGraph.Empty(rowsCount * colsCount);
     }
 
-    private void FillGraph(Graph graph)
+    private void FillGraph(IGraph graph)
     {
         foreach (var edge in GenerateHorizontalEdges())
         {
