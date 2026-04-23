@@ -1,6 +1,6 @@
 public class GraphPart : IReadonlyGraph
 {
-    private readonly IGraph parent;
+    private readonly IReadonlyGraph parent;
     private readonly HashSet<Vertex> vertices;
 
     public int VerticesCount { get => vertices.Count; }
@@ -19,7 +19,7 @@ public class GraphPart : IReadonlyGraph
         }
     }
     
-    public GraphPart(IGraph parent)
+    public GraphPart(IReadonlyGraph parent)
     {
         this.parent = parent;
         vertices = [];
