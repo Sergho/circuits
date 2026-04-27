@@ -4,13 +4,14 @@ public class GraphPartition
 
     public Graph Graph { get; }
     public int PartsCount { get; }
+    public IEnumerable<GraphPart> Parts { get => parts; }
 
     public GraphPartition(Graph graph, int partsCount)
     {
         Graph = graph;
         PartsCount = partsCount;
 
-        parts = [];
+        parts = new GraphPart[PartsCount];
 
         CreateParts();
         DistributeVertices();
@@ -20,7 +21,7 @@ public class GraphPartition
     {
         for (int i = 0; i < PartsCount; i++)
         {
-            parts.Append(new GraphPart(Graph));
+            parts[i] = new GraphPart(Graph);
         }
     }
 
@@ -45,4 +46,65 @@ public class GraphPartition
             currentIndex += partSize;
         }
     }
+
+    public void SwapVertices(Vertex first, Vertex second)
+    {
+        if(!Graph.HasVertex(first) || !Graph.HasVertex(second)) return;
+
+        var firstPart = GetPartOfVertex(first);
+        var secondPart = GetPartOfVertex(second);
+
+        firstPart.RemoveVertex(first);
+        secondPart.RemoveVertex(second);
+
+        firstPart.UseParentVertex(second);
+        secondPart.UseParentVertex(first);
+    }
+
+    public int CalculateGain(Vertex firstVertex, Vertex secondVertex)
+    {
+        int internalCount = GetInternalVerticesCount(firstVertex) + GetInternalVerticesCount(secondVertex);
+        int externalCount = GetExternalVerticesCount(firstVertex) + GetExternalVerticesCount(secondVertex);
+        bool graphHasEdge = Graph.HasEdge(new Edge(firstVertex, secondVertex));
+
+        return externalCount - internalCount - (graphHasEdge ? 2 : 0);
+    }
+
+    private int GetInternalVerticesCount(Vertex firstVertex)
+    {
+        var part = GetPartOfVertex(firstVertex);
+        int counter = 0;
+        foreach(var adjacentVertex in Graph.GetAdjacencyList(firstVertex))
+        {
+            if(part.HasVertex(adjacentVertex)) counter++;
+        }
+
+        return counter;
+    }
+
+    private int GetExternalVerticesCount(Vertex firstVertex)
+    {
+        var part = GetPartOfVertex(firstVertex);
+        var adjacencyList = Graph.GetAdjacencyList(firstVertex).ToList();
+        int counter = adjacencyList.Count;
+        foreach(var adjacentVertex in adjacencyList)
+        {
+            if(part.HasVertex(adjacentVertex)) counter--;
+        }
+
+        return counter;
+    }
+
+    private GraphPart GetPartOfVertex(Vertex vertex)
+    {
+        foreach (var part in parts) {
+            if(part.HasVertex(vertex))
+            {
+                return part;
+            }
+        }
+
+        throw new Exception("Incorrect Graph Partition");
+    }
+
 }

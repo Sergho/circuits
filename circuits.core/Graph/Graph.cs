@@ -1,7 +1,8 @@
-public class Graph
+public class Graph : GraphLoggable
 {
     private readonly HashSet<Vertex> vertices;
     private readonly HashSet<Edge> edges;
+    private readonly Dictionary<Vertex, HashSet<Vertex>> adjacencyMap;
 
     public int VerticesCount { get; }
     public int EdgesCount { get => edges.Count; }
@@ -20,6 +21,7 @@ public class Graph
         
         vertices = [];
         edges = [];
+        adjacencyMap = [];
 
         CreateVertices();
     }
@@ -28,7 +30,10 @@ public class Graph
     {
         for (int i = 1; i <= VerticesCount; i++)
         {
-            vertices.Add(new Vertex(i));
+            var vertex = new Vertex(i);
+
+            vertices.Add(vertex);
+            adjacencyMap.Add(vertex, []);
         }
     }
 
@@ -37,11 +42,23 @@ public class Graph
         return vertices.Contains(vertex);
     }
 
+    public bool HasEdge(Edge edge)
+    {
+        return edges.Contains(edge);
+    }
+
     public void AddEdge(Edge edge)
     {
         if (edges.Contains(edge)) return;
         if (!vertices.Contains(edge.First) || !vertices.Contains(edge.Second)) return;
         
         edges.Add(edge);
+        adjacencyMap[edge.First].Add(edge.Second);
+        adjacencyMap[edge.Second].Add(edge.First);
     }
+
+    public IEnumerable<Vertex> GetAdjacencyList(Vertex vertex)
+    {
+        return adjacencyMap[vertex];
+    } 
 }

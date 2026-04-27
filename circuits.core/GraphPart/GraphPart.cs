@@ -1,4 +1,4 @@
-public class GraphPart
+public class GraphPart : GraphLoggable
 {
     private readonly Graph parent;
     private readonly HashSet<Vertex> vertices;
@@ -30,6 +30,11 @@ public class GraphPart
         if(!parent.HasVertex(vertex)) return;
 
         vertices.Add(vertex);
+    }
+
+    public bool HasVertex(Vertex vertex)
+    {
+        return vertices.Contains(vertex);
     }
 
     public void RemoveVertex(Vertex vertex)
