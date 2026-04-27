@@ -48,7 +48,7 @@ public class GraphLogger
         return new StreamWriter(fileStream, Encoding.UTF8) { AutoFlush = true };
     }
 
-    public void Log(IReadonlyGraph graph)
+    public void Log(Graph graph)
     {
         ThrowIfDisposed();
 
@@ -69,12 +69,12 @@ public class GraphLogger
             throw new ObjectDisposedException(nameof(GraphLogger));
     }
 
-    private void LogGraphMeta(IReadonlyGraph graph)
+    private void LogGraphMeta(Graph graph)
     {
         streamWriter.WriteLine($"{graph.VerticesCount} {graph.EdgesCount}");
     }
 
-    private void LogGraphEdges(IReadonlyGraph graph)
+    private void LogGraphEdges(Graph graph)
     {
         foreach (var edge in graph.Edges)
         {

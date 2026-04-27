@@ -27,20 +27,20 @@ public class FisherYatesGraphGenerator : GraphGenerator
         return null;
     }
 
-    public IGraph Generate()
+    public Graph Generate()
     {
-        IGraph graph = GetEmptyGraph();
+        Graph graph = GetEmptyGraph();
         FillGraph(graph);
 
         return graph;
     }
 
-    private IGraph GetEmptyGraph()
+    private Graph GetEmptyGraph()
     {
-        return BaseGraph.Empty(verticesCount);
+        return Graph.Empty(verticesCount);
     }
 
-    private void FillGraph(IGraph graph)
+    private void FillGraph(Graph graph)
     {
         foreach (var edge in GenerateRandomEdges())
         {

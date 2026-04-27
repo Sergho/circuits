@@ -1,24 +1,22 @@
 public class GraphPartition
 {
-    private readonly IReadonlyGraph[] parts;
-    private readonly Random random;
+    private readonly GraphPart[] parts;
 
-    public IReadonlyGraph Graph { get; }
+    public Graph Graph { get; }
     public int PartsCount { get; }
 
-    public GraphPartition(IReadonlyGraph graph, int partsCount)
+    public GraphPartition(Graph graph, int partsCount)
     {
         Graph = graph;
         PartsCount = partsCount;
 
         parts = [];
-        random = new();
 
-        createParts();
-        InitParts();
+        CreateParts();
+        DistributeVertices();
     }
 
-    private void createParts()
+    private void CreateParts()
     {
         for (int i = 0; i < PartsCount; i++)
         {
@@ -26,24 +24,9 @@ public class GraphPartition
         }
     }
 
-    private void InitParts()
+    private void DistributeVertices()
     {
-        var allVertices = Graph.Vertices.ToArray();
-        ShuffleVertices(allVertices);
-        DistributeVertices(allVertices);
-    }
-
-    private void ShuffleVertices(Vertex[] vertices)
-    {
-        for (int i = 0; i < vertices.Length - 1; i++)
-        {
-            int j = random.Next(i, vertices.Length);
-            (vertices[i], vertices[j]) = (vertices[j], vertices[i]);
-        }
-    }
-
-    private void DistributeVertices(Vertex[] vertices)
-    {
+        var vertices = Graph.Vertices.ToArray();
         int verticesPerPart = Graph.VerticesCount / PartsCount;
         int extraVerticesCount = Graph.VerticesCount % PartsCount;
 

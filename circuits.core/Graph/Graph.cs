@@ -1,4 +1,4 @@
-public class BaseGraph : IGraph
+public class Graph
 {
     private readonly HashSet<Vertex> vertices;
     private readonly HashSet<Edge> edges;
@@ -9,12 +9,12 @@ public class BaseGraph : IGraph
     public IEnumerable<Vertex> Vertices { get => vertices; }
     public IEnumerable<Edge> Edges { get => edges; }
 
-    public static IGraph Empty(int verticesCount)
+    public static Graph Empty(int verticesCount)
     {
-        return new BaseGraph(verticesCount);
+        return new Graph(verticesCount);
     }
     
-    private BaseGraph(int verticesCount)
+    private Graph(int verticesCount)
     {
         VerticesCount = verticesCount;
         
@@ -35,11 +35,6 @@ public class BaseGraph : IGraph
     public bool HasVertex(Vertex vertex)
     {
         return vertices.Contains(vertex);
-    }
-
-    public bool HasEdge(Edge edge)
-    {
-        return edges.Contains(edge);
     }
 
     public void AddEdge(Edge edge)

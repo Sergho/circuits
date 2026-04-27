@@ -1,6 +1,6 @@
-public class GraphPart : IReadonlyGraph
+public class GraphPart
 {
-    private readonly IReadonlyGraph parent;
+    private readonly Graph parent;
     private readonly HashSet<Vertex> vertices;
 
     public int VerticesCount { get => vertices.Count; }
@@ -19,7 +19,7 @@ public class GraphPart : IReadonlyGraph
         }
     }
     
-    public GraphPart(IReadonlyGraph parent)
+    public GraphPart(Graph parent)
     {
         this.parent = parent;
         vertices = [];
@@ -32,13 +32,8 @@ public class GraphPart : IReadonlyGraph
         vertices.Add(vertex);
     }
 
-    public bool HasVertex(Vertex vertex)
+    public void RemoveVertex(Vertex vertex)
     {
-        return vertices.Contains(vertex);
-    }
-
-    public bool HasEdge(Edge edge)
-    {
-        return GetEdges().Contains(edge);
+        vertices.Remove(vertex);
     }
 }
