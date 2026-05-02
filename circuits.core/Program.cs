@@ -18,5 +18,8 @@
 
             partIndex++;
         }
+
+        var stats = new GraphPartitionStats(partition);
+        Console.WriteLine(stats.CrossEdgesCount);
     }
 }

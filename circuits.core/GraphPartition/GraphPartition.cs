@@ -70,6 +70,18 @@ public class GraphPartition
         return externalCount - internalCount - (graphHasEdge ? 2 : 0);
     }
 
+    public int GetCrossEdgesCount()
+    {
+        int totalExternalVertices = 0;
+        foreach(var vertex in Graph.Vertices)
+        {
+            totalExternalVertices += GetExternalVerticesCount(vertex);
+        }   
+
+        // Если не поделить на 2, то каждое ребро учтется два раза
+        return totalExternalVertices / 2;
+    }
+
     private int GetInternalVerticesCount(Vertex firstVertex)
     {
         var part = GetPartOfVertex(firstVertex);
