@@ -1,18 +1,45 @@
+using System.Diagnostics;
+
 public class GraphPartitionStats
-{
-    private readonly GraphPartition partition;
-    
+{    
+    public GraphPartition Partition { get; private set; }
     public int CrossEdgesCount { get; private set; }
+    public int GenerationTimeMs { get; private set; }
 
     public GraphPartitionStats(GraphPartition partition)
     {
-        this.partition = partition;
+        Partition = partition;
+        GenerationTimeMs = 0;
 
-        calculateStats();
+        CalculateStats();
     }
 
-    private void calculateStats()
+    public GraphPartitionStats(Graph graph, GraphPartitionGenerator partitionGenerator)
     {
-        CrossEdgesCount = partition.GetCrossEdgesCount();
+        var (partition, generationTimeMs) = MeasureGenerationTimeMs(graph, partitionGenerator);
+
+        Partition = partition;
+        GenerationTimeMs = generationTimeMs;
+
+        CalculateStats();
+    }
+
+    private (GraphPartition, int) MeasureGenerationTimeMs(Graph graph, GraphPartitionGenerator partitionGenerator)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        GraphPartition partition = GeneratePartition(graph, partitionGenerator);
+        stopwatch.Stop();
+
+        return (partition, (int)stopwatch.Elapsed.TotalMilliseconds);
+    }
+
+    private GraphPartition GeneratePartition(Graph graph, GraphPartitionGenerator partitionGenerator)
+    {
+        return partitionGenerator.Generate(graph);
+    }
+
+    private void CalculateStats()
+    {
+        CrossEdgesCount = Partition.GetCrossEdgesCount();
     }
 }

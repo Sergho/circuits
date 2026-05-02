@@ -9,17 +9,17 @@
         logger.Log(graph);
 
         var partitionGenerator = new KernighanLinGraphPartitionGenerator(2);
-        var partition = partitionGenerator.Generate(graph);
+        var stats = new GraphPartitionStats(graph, partitionGenerator);
+        Console.WriteLine(stats.CrossEdgesCount);
+        Console.WriteLine(stats.GenerationTimeMs);
+
         int partIndex = 1;
-        foreach(var part in partition.Parts)
+        foreach(var part in stats.Partition.Parts)
         {
             var partLogger = new GraphLogger($"./part-{partIndex}.txt");
             partLogger.Log(part);
 
             partIndex++;
         }
-
-        var stats = new GraphPartitionStats(partition);
-        Console.WriteLine(stats.CrossEdgesCount);
     }
 }
