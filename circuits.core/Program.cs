@@ -2,7 +2,7 @@
 {
     public static void Main()
     {
-        var generator = new FisherYatesGraphGenerator(1000, 100000);
+        var generator = new FisherYatesGraphGenerator(1000, 10000);
         var graph = generator.Generate();
         var logger = new GraphLogger("./graph.txt");
         
@@ -12,6 +12,7 @@
         var stats = new GraphPartitionStats(graph, partitionGenerator);
         Console.WriteLine(stats.CrossEdgesCount);
         Console.WriteLine(stats.GenerationTimeMs);
+        Console.WriteLine(stats.IterationsCount);
 
         int partIndex = 1;
         foreach(var part in stats.Partition.Parts)

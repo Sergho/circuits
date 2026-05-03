@@ -5,11 +5,13 @@ public class GraphPartitionStats
     public GraphPartition Partition { get; private set; }
     public int CrossEdgesCount { get; private set; }
     public int GenerationTimeMs { get; private set; }
+    public int IterationsCount { get; private set; }
 
     public GraphPartitionStats(GraphPartition partition)
     {
         Partition = partition;
         GenerationTimeMs = 0;
+        IterationsCount = 0;
 
         CalculateStats();
     }
@@ -20,6 +22,7 @@ public class GraphPartitionStats
 
         Partition = partition;
         GenerationTimeMs = generationTimeMs;
+        IterationsCount = partitionGenerator.LastIterationsCount;
 
         CalculateStats();
     }

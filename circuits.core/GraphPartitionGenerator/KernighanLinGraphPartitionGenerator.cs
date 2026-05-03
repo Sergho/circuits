@@ -1,17 +1,18 @@
-using System.Dynamic;
-using System.Runtime.Serialization;
-
 public class KernighanLinGraphPartitionGenerator : GraphPartitionGenerator
 {
     private readonly int partsCount;
     private readonly Random random;
     private readonly Dictionary<Edge, int> cachedGains;
+    
+    public int LastIterationsCount { get; private set; }
 
     public KernighanLinGraphPartitionGenerator(int partsCount)
     {
         this.partsCount = partsCount;
         random = new();
         cachedGains = [];
+
+        LastIterationsCount = 0;
     }
 
     public GraphPartition Generate(Graph graph)
@@ -21,16 +22,15 @@ public class KernighanLinGraphPartitionGenerator : GraphPartitionGenerator
         InitGainsCache(partition);
         InitPartition(partition);
 
-        int counter = 0;
+        LastIterationsCount = 0;
         while(true)
         {
-            Console.WriteLine(counter);
             var maxGainPair = GetMaxGainPair();
             if (maxGainPair == null) break;
 
             var (firstVertex, secondVertex) = maxGainPair.Value;
             SwapVertices(partition, firstVertex, secondVertex);
-            counter++;
+            LastIterationsCount++;
         }
         
 
