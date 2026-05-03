@@ -1,8 +1,11 @@
+using System.Dynamic;
+using System.Runtime.Serialization;
+
 public class KernighanLinGraphPartitionGenerator : GraphPartitionGenerator
 {
     private readonly int partsCount;
     private readonly Random random;
-    private Dictionary<Edge, int> cachedGains;
+    private readonly Dictionary<Edge, int> cachedGains;
 
     public KernighanLinGraphPartitionGenerator(int partsCount)
     {
@@ -13,59 +16,56 @@ public class KernighanLinGraphPartitionGenerator : GraphPartitionGenerator
 
     public GraphPartition Generate(Graph graph)
     {
-        var partition = InitPartition(graph);
-        PreCalculateGains(partition);
+        var partition = CreatePartition(graph);
 
-        const int maxIterationsCount = 200;
-        for(int i = 0; i < maxIterationsCount; i++)
+        InitGainsCache(partition);
+        InitPartition(partition);
+
+        int counter = 0;
+        while(true)
         {
-            Console.WriteLine($"Iteration: {i}");
-            var maxGainPair = GetMaxGainPair(partition);
+            Console.WriteLine(counter);
+            var maxGainPair = GetMaxGainPair();
             if (maxGainPair == null) break;
 
             var (firstVertex, secondVertex) = maxGainPair.Value;
-            partition.SwapVertices(firstVertex, secondVertex);
-            UpdateGains(graph, [firstVertex, secondVertex]);
+            SwapVertices(partition, firstVertex, secondVertex);
+            counter++;
+        }
+        
+
+        return partition;
+    }
+
+    private GraphPartition CreatePartition(Graph graph)
+    {
+        return new GraphPartition(graph, partsCount);
+    }
+
+    private GraphPartition InitPartition(GraphPartition partition)
+    {
+        for (int i = 1; i < partition.Graph.VerticesCount; i++)
+        {
+            int j = random.Next(i + 1, partition.Graph.VerticesCount);
+
+            var firstVertex = new Vertex(i);
+            var secondVertex = new Vertex(j);
+
+            if (partition.GetPart(firstVertex) == partition.GetPart(secondVertex)) continue;
+
+            SwapVertices(partition, firstVertex, secondVertex);
         }
 
         return partition;
     }
 
-    private GraphPartition InitPartition(Graph graph)
-    {
-        var partition = new GraphPartition(graph, partsCount);
-        for (int i = 1; i <= graph.VerticesCount; i++)
-        {
-            int j = random.Next(i, graph.VerticesCount + 1);
-            partition.SwapVertices(new Vertex(i), new Vertex(j));
-        }
-
-        return partition;
-    }
-
-    private void PreCalculateGains(GraphPartition partition)
+    private void InitGainsCache(GraphPartition partition)
     {
         foreach(var (first, second) in GetAllVertexPairs(partition))
         {
-            cachedGains[new Edge(first, second)] = partition.CalculateGain(first, second);
+            var gain = partition.CalculateGain(first, second);
+            cachedGains.Add(new Edge(first, second), gain);
         }
-    }
-
-    private (Vertex, Vertex)? GetMaxGainPair(GraphPartition partition)
-    {
-        int maxGain = 0;
-        (Vertex, Vertex)? maxGainPair = null;
-        foreach(var (first, second) in GetAllVertexPairs(partition))
-        {
-            var gain = CalculateGain(partition, first, second);
-            if(gain > maxGain)
-            {
-                maxGain = gain;
-                maxGainPair = (first, second);
-            }
-        }
-
-        return maxGainPair;
     }
 
     private IEnumerable<(Vertex, Vertex)> GetAllVertexPairs(GraphPartition partition)
@@ -86,30 +86,44 @@ public class KernighanLinGraphPartitionGenerator : GraphPartitionGenerator
         }
     }
 
-    private void UpdateGains(Graph graph, Vertex[] changedVertices)
+    private (Vertex, Vertex)? GetMaxGainPair()
     {
-        var affectedVertices = new HashSet<Vertex>(changedVertices);
-        foreach(var changedVertex in changedVertices)
+        int maxGain = 0;
+        (Vertex, Vertex)? maxGainPair = null;
+        foreach(var (edge, gain) in cachedGains)
         {
-            affectedVertices.UnionWith(graph.GetAdjacencyList(changedVertex));
-        }
-
-        foreach (var firstVertex in affectedVertices)
-        {
-            foreach (var secondVertex in affectedVertices)
+            if(gain > maxGain)
             {
-                cachedGains.Remove(new Edge(firstVertex, secondVertex));
+                maxGain = gain;
+                maxGainPair = (edge.First, edge.Second);
             }
         }
+
+        return maxGainPair;
     }
 
-    private int CalculateGain(GraphPartition partition, Vertex first, Vertex second)
+    private void SwapVertices(GraphPartition partition, Vertex first, Vertex second)
     {
-        if (!cachedGains.ContainsKey(new Edge(first, second)))
-        {
-            cachedGains[new Edge(first, second)] = partition.CalculateGain(first, second);
-        }
+        partition.SwapVertices(first, second);
 
-        return cachedGains[new Edge(first, second)];
+        UpdateGainsForVertex(partition, first);
+        UpdateGainsForVertex(partition, second);
+    }
+
+    private void UpdateGainsForVertex(GraphPartition partition, Vertex vertex)
+    {
+        foreach(var otherVertex in partition.Graph.Vertices)
+        {
+            if (otherVertex.Equals(vertex)) continue;
+
+            var edgeKey = new Edge(vertex, otherVertex);
+            if (cachedGains.ContainsKey(edgeKey))
+            {
+                cachedGains.Remove(edgeKey);
+            } else
+            {
+                cachedGains.Add(edgeKey, partition.CalculateGain(vertex, otherVertex));
+            }
+        }
     }
 }

@@ -54,8 +54,8 @@ public class GraphPartition
     {
         if(!Graph.HasVertex(first) || !Graph.HasVertex(second)) return;
 
-        var firstPart = vertexToPart[first];
-        var secondPart = vertexToPart[second];
+        var firstPart = GetPart(first);
+        var secondPart = GetPart(second);
 
         firstPart.RemoveVertex(first);
         secondPart.RemoveVertex(second);
@@ -90,7 +90,7 @@ public class GraphPartition
 
     private int GetInternalVerticesCount(Vertex firstVertex)
     {
-        var part = vertexToPart[firstVertex];
+        var part = GetPart(firstVertex);
         int counter = 0;
         foreach(var adjacentVertex in Graph.GetAdjacencyList(firstVertex))
         {
@@ -102,7 +102,7 @@ public class GraphPartition
 
     private int GetExternalVerticesCount(Vertex firstVertex)
     {
-        var part = vertexToPart[firstVertex];
+        var part = GetPart(firstVertex);
         int counter = 0;
         foreach(var adjacentVertex in Graph.GetAdjacencyList(firstVertex))
         {
@@ -110,5 +110,10 @@ public class GraphPartition
         }
 
         return counter;
+    }
+
+    public GraphPart GetPart(Vertex vertex)
+    {
+        return vertexToPart[vertex];
     }
 }

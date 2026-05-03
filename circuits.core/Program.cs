@@ -2,7 +2,7 @@
 {
     public static void Main()
     {
-        var generator = new RegularGridGraphGenerator(10, 20);
+        var generator = new FisherYatesGraphGenerator(1000, 100000);
         var graph = generator.Generate();
         var logger = new GraphLogger("./graph.txt");
         
