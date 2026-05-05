@@ -2,39 +2,70 @@ public class KernighanLinGraphPartitionGenerator : GraphPartitionGenerator
 {
     private readonly int partsCount;
     private readonly Random random;
+    private readonly Dictionary<Edge, int> cachedGains;
+    
+    public int LastIterationsCount { get; private set; }
 
     public KernighanLinGraphPartitionGenerator(int partsCount)
     {
         this.partsCount = partsCount;
         random = new();
+        cachedGains = [];
+
+        LastIterationsCount = 0;
     }
 
     public GraphPartition Generate(Graph graph)
     {
-        var partition = InitPartition(graph);
+        var partition = CreatePartition(graph);
+
+        InitGainsCache(partition);
+        InitPartition(partition);
+
+        LastIterationsCount = 0;
         while(true)
         {
-            var maxGainPair = GetMaxGainPair(partition);
+            var maxGainPair = GetMaxGainPair();
             if (maxGainPair == null) break;
 
-            var (vertexA, vertexB) = maxGainPair.Value;
-            partition.SwapVertices(vertexA, vertexB);
+            var (firstVertex, secondVertex) = maxGainPair.Value;
+            SwapVertices(partition, firstVertex, secondVertex);
+            LastIterationsCount++;
         }
         
 
         return partition;
     }
 
-    private GraphPartition InitPartition(Graph graph)
+    private GraphPartition CreatePartition(Graph graph)
     {
-        var partition = new GraphPartition(graph, partsCount);
-        for (int i = 1; i <= graph.VerticesCount; i++)
+        return new GraphPartition(graph, partsCount);
+    }
+
+    private GraphPartition InitPartition(GraphPartition partition)
+    {
+        for (int i = 1; i < partition.Graph.VerticesCount; i++)
         {
-            int j = random.Next(i, graph.VerticesCount + 1);
-            partition.SwapVertices(new Vertex(i), new Vertex(j));
+            int j = random.Next(i + 1, partition.Graph.VerticesCount);
+
+            var firstVertex = new Vertex(i);
+            var secondVertex = new Vertex(j);
+
+            if (partition.GetPart(firstVertex) == partition.GetPart(secondVertex)) continue;
+
+            SwapVertices(partition, firstVertex, secondVertex);
         }
 
         return partition;
+    }
+
+    private void InitGainsCache(GraphPartition partition)
+    {
+        foreach(var (first, second) in GetAllVertexPairs(partition))
+        {
+            var gain = partition.CalculateGain(first, second);
+            cachedGains.Add(new Edge(first, second), gain);
+        }
     }
 
     private IEnumerable<(Vertex, Vertex)> GetAllVertexPairs(GraphPartition partition)
@@ -55,20 +86,44 @@ public class KernighanLinGraphPartitionGenerator : GraphPartitionGenerator
         }
     }
 
-    private (Vertex, Vertex)? GetMaxGainPair(GraphPartition partition)
+    private (Vertex, Vertex)? GetMaxGainPair()
     {
         int maxGain = 0;
         (Vertex, Vertex)? maxGainPair = null;
-        foreach(var pair in GetAllVertexPairs(partition))
+        foreach(var (edge, gain) in cachedGains)
         {
-            var gain = partition.CalculateGain(pair.Item1, pair.Item2);
             if(gain > maxGain)
             {
                 maxGain = gain;
-                maxGainPair = pair;
+                maxGainPair = (edge.First, edge.Second);
             }
         }
 
         return maxGainPair;
+    }
+
+    private void SwapVertices(GraphPartition partition, Vertex first, Vertex second)
+    {
+        partition.SwapVertices(first, second);
+
+        UpdateGainsForVertex(partition, first);
+        UpdateGainsForVertex(partition, second);
+    }
+
+    private void UpdateGainsForVertex(GraphPartition partition, Vertex vertex)
+    {
+        foreach(var otherVertex in partition.Graph.Vertices)
+        {
+            if (otherVertex.Equals(vertex)) continue;
+
+            var edgeKey = new Edge(vertex, otherVertex);
+            if (cachedGains.ContainsKey(edgeKey))
+            {
+                cachedGains.Remove(edgeKey);
+            } else
+            {
+                cachedGains.Add(edgeKey, partition.CalculateGain(vertex, otherVertex));
+            }
+        }
     }
 }
