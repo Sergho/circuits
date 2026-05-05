@@ -1,0 +1,12 @@
+@startuml IGraph
+
+interface IGraph {
+    + Vertices: IEnumerable<IVertex> {readOnly}
+
+    + HasVertex(vertex: IVertex): bool
+    + HasEdge(edge: IEdge): bool
+    + AddEdge(edge: IEdge): void
+    + GetAdjacencyList(vertex: IVertex): IEnumerable<IEdge>
+}
+
+@enduml

@@ -1,0 +1,14 @@
+@startuml GraphPartition
+
+!include ../domain/IGraphPartition.puml
+
+class GraphPartition {
+    - parts: IGraphParts[] {readOnly}
+    - vertexToPart: Dictionary<IVertex, IGraphPart> {readOnly}
+
+    + GraphPartition(graph: IGraph, partsCount: int)
+}
+
+GraphPartition ..|> IGraphPartition
+
+@enduml

@@ -1,0 +1,63 @@
+@startuml GraphGenerator
+
+left to right direction
+
+!include ../domain/IGraphGenerator.puml
+
+class BipartiteGraphGenerator {
+    - leftPartitionSize: int {readOnly}
+    - rightPartitionSize: int {readOnly}
+    - edgesCount: int {readOnly}
+    - random: Random {readOnly}
+
+    + BipartiteGraphGenerator(leftPartitionSize: int, rightPartitionSize: int, edgesCount: int)
+}
+
+BipartiteGraphGenerator ..|> IGraphGenerator
+
+class ChainGraphGenerator {
+    - verticesCount: int {readOnly}
+
+    + ChainGraphGenerator(verticesCount: int)
+}
+
+ChainGraphGenerator ..|> IGraphGenerator
+
+class CliqueGraphGenerator {
+    - verticesCount: int {readOnly}
+
+    + CliqueGraphGenerator(verticesCount: int)
+}
+
+CliqueGraphGenerator ..|> IGraphGenerator
+
+class ErdosRenyiGraphGenerator {
+    - verticesCount: int {readOnly}
+    - edgeProbability: double {readOnly}
+    - random: Random {readOnly}
+
+    + ErdosRenyiProbabilityGenerator(verticesCount: int, edgeProbability: double)
+}
+
+ErdosRenyiGraphGenerator ..|> IGraphGenerator
+
+class FisherYatesGraphGenerator {
+    - verticesCount: int {readOnly}
+    - edgesCount: int {readOnly}
+    - random: Random {readOnly}
+
+    + FisherYatesGraphGenerator(verticesCount: int, edgesCount: int)
+}
+
+FisherYatesGraphGenerator ..|> IGraphGenerator
+
+class RegularGridGraphGenerator {
+    - rowsCount: int {readOnly}
+    - colsCount: int {readOnly}
+
+    + RegularGridGraphGenerator(rowsCount: int,  colsCount: int)
+}
+
+RegularGridGraphGenerator ..|> IGraphGenerator
+
+@enduml

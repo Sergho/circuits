@@ -1,0 +1,11 @@
+@startuml IGraphPartitionStats
+
+interface IGraphPartitionStats {
+    + CrossEdgesCount: int {readOnly}
+    + GenerationTimeMs: int {readOnly}
+    + IterationsCount: int {readOnly}
+
+    + Partition: IGraphPartition {readOnly}
+}
+
+@enduml

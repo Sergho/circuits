@@ -1,0 +1,14 @@
+@startuml GraphPart
+
+!include ../domain/IGraphPart.puml
+
+class GraphPart {
+    - parent: IGraph {readOnly}
+    - vertices: HashSet<IVertex> {readOnly}
+    
+    + GraphPart(parent: IGraph)
+}
+
+GraphPart ..|> IGraphPart
+
+@enduml
