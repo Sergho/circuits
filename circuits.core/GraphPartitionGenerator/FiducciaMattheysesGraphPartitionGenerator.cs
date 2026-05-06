@@ -3,6 +3,7 @@ public class FiducciaMattheysesGraphPartitionGenerator : GraphPartitionGenerator
     private int iterationsCount;
     private readonly Random random;
 
+    public int LastIterationsCount => iterationsCount;
     public int IterationsCount => iterationsCount;
 
     public FiducciaMattheysesGraphPartitionGenerator()

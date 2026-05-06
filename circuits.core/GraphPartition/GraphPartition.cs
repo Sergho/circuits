@@ -1,6 +1,7 @@
 public class GraphPartition
 {
     private readonly GraphPart[] parts;
+    private Dictionary<Vertex, GraphPart> vertexToPart;
 
     public Graph Graph { get; }
     public int PartsCount { get; }
@@ -12,6 +13,7 @@ public class GraphPartition
         PartsCount = partsCount;
 
         parts = new GraphPart[PartsCount];
+        vertexToPart = [];
 
         CreateParts();
         DistributeVertices();
@@ -36,10 +38,11 @@ public class GraphPartition
         {
             int partSize = verticesPerPart + (partIndex < extraVerticesCount ? 1 : 0);
             var part = new GraphPart(Graph);
-            
+
             for(int vertexIndex = currentIndex; vertexIndex < currentIndex + partSize; vertexIndex++)
             {
                 part.UseParentVertex(vertices[vertexIndex]);
+                vertexToPart[vertices[vertexIndex]] = part;
             }
 
             parts[partIndex] = part;
@@ -51,14 +54,17 @@ public class GraphPartition
     {
         if(!Graph.HasVertex(first) || !Graph.HasVertex(second)) return;
 
-        var firstPart = GetPartOfVertex(first);
-        var secondPart = GetPartOfVertex(second);
+        var firstPart = GetPart(first);
+        var secondPart = GetPart(second);
 
         firstPart.RemoveVertex(first);
         secondPart.RemoveVertex(second);
 
         firstPart.UseParentVertex(second);
         secondPart.UseParentVertex(first);
+
+        vertexToPart[second] = firstPart;
+        vertexToPart[first] = secondPart;
     }
 
     public int CalculateGain(Vertex firstVertex, Vertex secondVertex)
@@ -70,9 +76,45 @@ public class GraphPartition
         return externalCount - internalCount - (graphHasEdge ? 2 : 0);
     }
 
+    public int GetCrossEdgesCount()
+    {
+        int totalExternalVertices = 0;
+        foreach(var vertex in Graph.Vertices)
+        {
+            totalExternalVertices += GetExternalVerticesCount(vertex);
+        }
+
+        return totalExternalVertices / 2;
+    }
+
+    public int CutSize => GetCrossEdgesCount();
+
+    public int GetPartIndex(Vertex vertex)
+    {
+        var part = GetPart(vertex);
+        for (int i = 0; i < parts.Length; i++)
+            if (parts[i] == part) return i;
+        throw new InvalidOperationException("Vertex not found in any partition part");
+    }
+
+    public void MoveVertex(Vertex vertex, int toPartIndex)
+    {
+        if (!Graph.HasVertex(vertex)) return;
+        var fromPart = GetPart(vertex);
+        if (fromPart == parts[toPartIndex]) return;
+        fromPart.RemoveVertex(vertex);
+        parts[toPartIndex].UseParentVertex(vertex);
+        vertexToPart[vertex] = parts[toPartIndex];
+    }
+
+    public GraphPart GetPart(Vertex vertex)
+    {
+        return vertexToPart[vertex];
+    }
+
     private int GetInternalVerticesCount(Vertex firstVertex)
     {
-        var part = GetPartOfVertex(firstVertex);
+        var part = GetPart(firstVertex);
         int counter = 0;
         foreach(var adjacentVertex in Graph.GetAdjacencyList(firstVertex))
         {
@@ -84,55 +126,13 @@ public class GraphPartition
 
     private int GetExternalVerticesCount(Vertex firstVertex)
     {
-        var part = GetPartOfVertex(firstVertex);
-        var adjacencyList = Graph.GetAdjacencyList(firstVertex).ToList();
-        int counter = adjacencyList.Count;
-        foreach(var adjacentVertex in adjacencyList)
+        var part = GetPart(firstVertex);
+        int counter = 0;
+        foreach(var adjacentVertex in Graph.GetAdjacencyList(firstVertex))
         {
-            if(part.HasVertex(adjacentVertex)) counter--;
+            if(!part.HasVertex(adjacentVertex)) counter++;
         }
 
         return counter;
     }
-
-    public int CutSize
-    {
-        get
-        {
-            int cut = 0;
-            foreach (var edge in Graph.Edges)
-                if (GetPartIndex(edge.First) != GetPartIndex(edge.Second))
-                    cut++;
-            return cut;
-        }
-    }
-
-    public int GetPartIndex(Vertex vertex)
-    {
-        for (int i = 0; i < parts.Length; i++)
-            if (parts[i].HasVertex(vertex)) return i;
-        throw new InvalidOperationException("Vertex not found in any partition part");
-    }
-
-    public void MoveVertex(Vertex vertex, int toPartIndex)
-    {
-        if (!Graph.HasVertex(vertex)) return;
-        var fromPart = GetPartOfVertex(vertex);
-        if (fromPart == parts[toPartIndex]) return;
-        fromPart.RemoveVertex(vertex);
-        parts[toPartIndex].UseParentVertex(vertex);
-    }
-
-    private GraphPart GetPartOfVertex(Vertex vertex)
-    {
-        foreach (var part in parts) {
-            if(part.HasVertex(vertex))
-            {
-                return part;
-            }
-        }
-
-        throw new Exception("Incorrect Graph Partition");
-    }
-
 }
