@@ -95,6 +95,34 @@ public class GraphPartition
         return counter;
     }
 
+    public int CutSize
+    {
+        get
+        {
+            int cut = 0;
+            foreach (var edge in Graph.Edges)
+                if (GetPartIndex(edge.First) != GetPartIndex(edge.Second))
+                    cut++;
+            return cut;
+        }
+    }
+
+    public int GetPartIndex(Vertex vertex)
+    {
+        for (int i = 0; i < parts.Length; i++)
+            if (parts[i].HasVertex(vertex)) return i;
+        throw new InvalidOperationException("Vertex not found in any partition part");
+    }
+
+    public void MoveVertex(Vertex vertex, int toPartIndex)
+    {
+        if (!Graph.HasVertex(vertex)) return;
+        var fromPart = GetPartOfVertex(vertex);
+        if (fromPart == parts[toPartIndex]) return;
+        fromPart.RemoveVertex(vertex);
+        parts[toPartIndex].UseParentVertex(vertex);
+    }
+
     private GraphPart GetPartOfVertex(Vertex vertex)
     {
         foreach (var part in parts) {

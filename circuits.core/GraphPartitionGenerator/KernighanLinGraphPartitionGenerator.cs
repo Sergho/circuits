@@ -2,6 +2,9 @@ public class KernighanLinGraphPartitionGenerator : GraphPartitionGenerator
 {
     private readonly int partsCount;
     private readonly Random random;
+    private int iterationsCount;
+
+    public int IterationsCount => iterationsCount;
 
     public KernighanLinGraphPartitionGenerator(int partsCount)
     {
@@ -12,6 +15,7 @@ public class KernighanLinGraphPartitionGenerator : GraphPartitionGenerator
     public GraphPartition Generate(Graph graph)
     {
         var partition = InitPartition(graph);
+        iterationsCount = 0;
         while(true)
         {
             var maxGainPair = GetMaxGainPair(partition);
@@ -19,8 +23,8 @@ public class KernighanLinGraphPartitionGenerator : GraphPartitionGenerator
 
             var (vertexA, vertexB) = maxGainPair.Value;
             partition.SwapVertices(vertexA, vertexB);
+            iterationsCount++;
         }
-        
 
         return partition;
     }

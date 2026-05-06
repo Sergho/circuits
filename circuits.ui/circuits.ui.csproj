@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Using Include="System.Diagnostics" />
+    <Using Include="System.Drawing.Drawing2D" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\circuits.core\circuits.core.csproj" />
+  </ItemGroup>
+</Project>
