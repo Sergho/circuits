@@ -264,28 +264,39 @@ public class MainForm : Form
         new DetailedComparisonForm().ShowDialog(this);
     }
 
-    private void OnCompare(object? sender, EventArgs e)
+    private async void OnCompare(object? sender, EventArgs e)
     {
         Cursor = Cursors.WaitCursor;
         compareButton.Enabled = false;
         try
         {
-            int[] testSizes = [10, 25, 50, 100, 200, 400];
-            double prob = generatorTypeCombo.SelectedIndex == 0 ? (double)param2UpDown.Value : 0.1;
+            int[] testSizes = [10, 25, 50, 100, 175, 300, 500];
+            double prob = generatorTypeCombo.SelectedIndex == 0 ? (double)param2UpDown.Value : 0.15;
+            const int runs = 2;
 
-            var klCuts = new int[testSizes.Length];
-            var fmCuts = new int[testSizes.Length];
+            var klCuts    = new int[testSizes.Length];
+            var fmCuts    = new int[testSizes.Length];
+            var edgeCounts = new int[testSizes.Length];
 
-            for (int i = 0; i < testSizes.Length; i++)
+            await Task.Run(() =>
             {
-                var graph = new ErdosRenyiProbabilityGenerator(testSizes[i], prob).Generate();
-                var klGen = new KernighanLinGraphPartitionGenerator(2);
-                klCuts[i] = klGen.Generate(graph).CutSize;
-                var fmGen = new FiducciaMattheysesGraphPartitionGenerator();
-                fmCuts[i] = fmGen.Generate(graph).CutSize;
-            }
+                for (int i = 0; i < testSizes.Length; i++)
+                {
+                    long klSum = 0, fmSum = 0, edgeSum = 0;
+                    for (int r = 0; r < runs; r++)
+                    {
+                        var graph = new ErdosRenyiProbabilityGenerator(testSizes[i], prob).Generate();
+                        edgeSum += graph.EdgesCount;
+                        klSum   += new KernighanLinGraphPartitionGenerator(2).Generate(graph).CutSize;
+                        fmSum   += new FiducciaMattheysesGraphPartitionGenerator().Generate(graph).CutSize;
+                    }
+                    klCuts[i]     = (int)(klSum    / runs);
+                    fmCuts[i]     = (int)(fmSum    / runs);
+                    edgeCounts[i] = (int)(edgeSum  / runs);
+                }
+            });
 
-            comparisonChart.SetData(testSizes, klCuts, fmCuts);
+            comparisonChart.SetData(testSizes, klCuts, fmCuts, edgeCounts);
             tabControl.SelectedTab = tabControl.TabPages[1];
         }
         catch (Exception ex)
