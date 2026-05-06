@@ -1,13 +1,13 @@
 using System.Diagnostics;
 
-public class GraphPartitionStats
+public class GraphPartitionStats : IGraphPartitionStats
 {    
-    public GraphPartition Partition { get; private set; }
+    public IGraphPartition Partition { get; private set; }
     public int CrossEdgesCount { get; private set; }
     public int GenerationTimeMs { get; private set; }
     public int IterationsCount { get; private set; }
 
-    public GraphPartitionStats(GraphPartition partition)
+    public GraphPartitionStats(IGraphPartition partition)
     {
         Partition = partition;
         GenerationTimeMs = 0;
@@ -16,7 +16,7 @@ public class GraphPartitionStats
         CalculateStats();
     }
 
-    public GraphPartitionStats(Graph graph, GraphPartitionGenerator partitionGenerator)
+    public GraphPartitionStats(IGraph graph, IGraphPartitionGenerator partitionGenerator)
     {
         var (partition, generationTimeMs) = MeasureGenerationTimeMs(graph, partitionGenerator);
 
@@ -27,22 +27,22 @@ public class GraphPartitionStats
         CalculateStats();
     }
 
-    private (GraphPartition, int) MeasureGenerationTimeMs(Graph graph, GraphPartitionGenerator partitionGenerator)
+    private (IGraphPartition, int) MeasureGenerationTimeMs(IGraph graph, IGraphPartitionGenerator partitionGenerator)
     {
         var stopwatch = Stopwatch.StartNew();
-        GraphPartition partition = GeneratePartition(graph, partitionGenerator);
+        IGraphPartition partition = GeneratePartition(graph, partitionGenerator);
         stopwatch.Stop();
 
         return (partition, (int)stopwatch.Elapsed.TotalMilliseconds);
     }
 
-    private GraphPartition GeneratePartition(Graph graph, GraphPartitionGenerator partitionGenerator)
+    private IGraphPartition GeneratePartition(IGraph graph, IGraphPartitionGenerator partitionGenerator)
     {
         return partitionGenerator.Generate(graph);
     }
 
     private void CalculateStats()
     {
-        CrossEdgesCount = Partition.GetCrossEdgesCount();
+        CrossEdgesCount = Partition.CrossEdgesCount;
     }
 }

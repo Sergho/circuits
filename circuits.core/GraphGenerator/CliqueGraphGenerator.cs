@@ -1,6 +1,6 @@
-public class CliqueGraphGenerator : GraphGenerator
+public class CliqueGraphGenerator : IGraphGenerator
 {
-    private readonly int verticesCount;
+    private int verticesCount;
 
     public CliqueGraphGenerator(int verticesCount)
     {
@@ -19,20 +19,20 @@ public class CliqueGraphGenerator : GraphGenerator
         return null;
     }
 
-    public Graph Generate()
+    public IGraph Generate()
     {
-        Graph graph = GetEmptyGraph();
+        IGraph graph = GetEmptyGraph();
         FillGraph(graph);
 
         return graph;
     }
 
-    private Graph GetEmptyGraph()
+    private IGraph GetEmptyGraph()
     {
         return Graph.Empty(verticesCount);
     }
 
-    private void FillGraph(Graph graph)
+    private void FillGraph(IGraph graph)
     {
         for (int i = 1; i <= verticesCount; i++)
         {

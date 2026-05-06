@@ -5,6 +5,7 @@ interface IEdge {
     + Second: IVertex {readOnly}
     + GetHashCode(): int
     + Equals(other?: IEdge): bool
+    + GetNormalized(): IEdge
 }
 
 @enduml

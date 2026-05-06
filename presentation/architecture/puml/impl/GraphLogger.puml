@@ -7,7 +7,6 @@ class FileGraphLogger {
     - streamWriter: StreamWriter
     - isDisposed: bool
     - filePath: string
-    - dirPath: string
 
     + FileGraphLogger(filepath: string)
     + Dispose(): void

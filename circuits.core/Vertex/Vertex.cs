@@ -1,4 +1,4 @@
-public class Vertex : IComparable<Vertex>, IEquatable<Vertex>
+public class Vertex : IVertex
 {
     public int Index { get; }
 
@@ -10,14 +10,19 @@ public class Vertex : IComparable<Vertex>, IEquatable<Vertex>
         Index = index;
     }
 
-    public bool Equals(Vertex? other)
+    public bool Equals(IVertex? other)
     {
         if (other is null) return false;
 
         return Index == other.Index;
     }
 
-    public int CompareTo(Vertex? other)
+    public override bool Equals(object? obj)
+    {
+        return obj is IVertex vertex && Equals(vertex);
+    }
+
+    public int CompareTo(IVertex? other)
     {
         if (other is null) return 1;
 

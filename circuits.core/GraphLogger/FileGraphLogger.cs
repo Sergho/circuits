@@ -1,17 +1,15 @@
 using System.Text;
 
-public class GraphLogger
+public class FileGraphLogger : IGraphLogger
 {
-    private readonly FileStream fileStream;
-    private readonly StreamWriter streamWriter;
+    private FileStream fileStream;
+    private StreamWriter streamWriter;
     private bool isDisposed;
+    private string filePath;
 
-    public string FilePath { get; }
-    private string DirPath { get => Path.GetDirectoryName(FilePath) ?? string.Empty; }
-
-    public GraphLogger(string filepath)
+    public FileGraphLogger(string filepath)
     {
-        FilePath = filepath;
+        filePath = filepath;
         fileStream = CreateFileStream();
         streamWriter = CreateStreamWriter();
         isDisposed = false;
@@ -22,7 +20,7 @@ public class GraphLogger
         CreateDirectory();
 
         return new FileStream(
-            FilePath,
+            filePath,
             FileMode.Create,
             FileAccess.Write,
             FileShare.None,
@@ -32,15 +30,20 @@ public class GraphLogger
 
     private void CreateDirectory()
     {
-        if (string.IsNullOrEmpty(DirPath))
+        if (string.IsNullOrEmpty(GetDirPath()))
         {
             throw new ArgumentException("Unable to create directory with empty path");
         }
 
-        if (!Directory.Exists(DirPath))
+        if (!Directory.Exists(GetDirPath()))
         {
-            Directory.CreateDirectory(DirPath);
+            Directory.CreateDirectory(GetDirPath());
         }
+    }
+
+    private string GetDirPath()
+    {
+        return Path.GetDirectoryName(filePath) ?? string.Empty;
     }
 
     private StreamWriter CreateStreamWriter()
@@ -48,7 +51,7 @@ public class GraphLogger
         return new StreamWriter(fileStream, Encoding.UTF8) { AutoFlush = true };
     }
 
-    public void Log(GraphLoggable graph)
+    public void Log(IGraphLoggable graph)
     {
         ThrowIfDisposed();
 
@@ -59,22 +62,22 @@ public class GraphLogger
         }
         catch (IOException ex)
         {
-            throw new InvalidOperationException($"Error during graph logging at {FilePath}", ex);
+            throw new InvalidOperationException($"Error during graph logging at {filePath}", ex);
         }
     }
 
     private void ThrowIfDisposed()
     {
         if (isDisposed)
-            throw new ObjectDisposedException(nameof(GraphLogger));
+            throw new ObjectDisposedException(nameof(FileGraphLogger));
     }
 
-    private void LogGraphMeta(GraphLoggable graph)
+    private void LogGraphMeta(IGraphLoggable graph)
     {
         streamWriter.WriteLine($"{graph.VerticesCount} {graph.EdgesCount}");
     }
 
-    private void LogGraphEdges(GraphLoggable graph)
+    private void LogGraphEdges(IGraphLoggable graph)
     {
         foreach (var edge in graph.Edges)
         {
@@ -93,5 +96,5 @@ public class GraphLogger
         GC.SuppressFinalize(this);
     }
 
-    ~GraphLogger() => Dispose();
+    ~FileGraphLogger() => Dispose();
 }

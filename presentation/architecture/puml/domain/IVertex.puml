@@ -4,6 +4,7 @@ interface IVertex {
     + Index: int {readOnly}
     + GetHashCode(): int
     + CompareTo(other?: IVertex): int
+    + Equals(other?: IVertex): bool
 }
 
 @enduml

@@ -6,7 +6,7 @@ interface IGraph {
     + HasVertex(vertex: IVertex): bool
     + HasEdge(edge: IEdge): bool
     + AddEdge(edge: IEdge): void
-    + GetAdjacencyList(vertex: IVertex): IEnumerable<IEdge>
+    + GetAdjacencyList(vertex: IVertex): IEnumerable<IVertex>
 }
 
 @enduml
