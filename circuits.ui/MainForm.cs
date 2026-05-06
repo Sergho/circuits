@@ -12,6 +12,7 @@ public class MainForm : Form
     private RadioButton fmRadio = null!;
     private Button runButton = null!;
     private Button compareButton = null!;
+    private Button detailButton = null!;
     private GraphCanvas graphCanvas = null!;
     private ComparisonChart comparisonChart = null!;
     private TabControl tabControl = null!;
@@ -104,6 +105,15 @@ public class MainForm : Form
         };
         compareButton.Click += OnCompare;
         flow.Controls.Add(compareButton);
+
+        detailButton = new Button
+        {
+            Text = "Детальное сравнение (таблица)",
+            Width = 246, Height = 34,
+            Margin = new Padding(0, 4, 0, 0),
+        };
+        detailButton.Click += OnDetailedCompare;
+        flow.Controls.Add(detailButton);
 
         panel.Controls.Add(flow);
         return panel;
@@ -247,6 +257,11 @@ public class MainForm : Form
             Cursor = Cursors.Default;
             runButton.Enabled = true;
         }
+    }
+
+    private void OnDetailedCompare(object? sender, EventArgs e)
+    {
+        new DetailedComparisonForm().ShowDialog(this);
     }
 
     private void OnCompare(object? sender, EventArgs e)
