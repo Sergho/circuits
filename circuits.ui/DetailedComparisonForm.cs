@@ -4,29 +4,35 @@ public class DetailedComparisonForm : Form
     private ProgressBar progressBar = null!;
     private Button runButton = null!;
     private Label statusLabel = null!;
+    private ComboBox generatorCombo = null!;
+    private NumericUpDown probUpDown = null!;
+    private Label probLabel = null!;
 
     public DetailedComparisonForm()
     {
         Text = "Детальное сравнение алгоритмов";
-        Size = new Size(860, 480);
-        MinimumSize = new Size(700, 380);
+        Size = new Size(900, 520);
+        MinimumSize = new Size(720, 400);
         StartPosition = FormStartPosition.CenterParent;
         BuildUI();
     }
 
     private void BuildUI()
     {
-        var layout = new TableLayoutPanel
+        var outer = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
             ColumnCount = 1,
-            RowCount = 4,
+            RowCount = 5,
             Padding = new Padding(8),
         };
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 38));
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 22));
-        layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-        layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));
+        outer.RowStyles.Add(new RowStyle(SizeType.Absolute, 34));
+        outer.RowStyles.Add(new RowStyle(SizeType.Absolute, 38));
+        outer.RowStyles.Add(new RowStyle(SizeType.Absolute, 22));
+        outer.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+        outer.RowStyles.Add(new RowStyle(SizeType.Absolute, 26));
+
+        outer.Controls.Add(BuildGeneratorPanel(), 0, 0);
 
         runButton = new Button
         {
@@ -34,13 +40,13 @@ public class DetailedComparisonForm : Form
             Dock = DockStyle.Fill,
         };
         runButton.Click += OnRun;
-        layout.Controls.Add(runButton, 0, 0);
+        outer.Controls.Add(runButton, 0, 1);
 
         progressBar = new ProgressBar { Dock = DockStyle.Fill, Minimum = 0 };
-        layout.Controls.Add(progressBar, 0, 1);
+        outer.Controls.Add(progressBar, 0, 2);
 
         grid = BuildGrid();
-        layout.Controls.Add(grid, 0, 2);
+        outer.Controls.Add(grid, 0, 3);
 
         statusLabel = new Label
         {
@@ -48,9 +54,73 @@ public class DetailedComparisonForm : Form
             TextAlign = ContentAlignment.MiddleLeft,
             ForeColor = Color.DimGray,
         };
-        layout.Controls.Add(statusLabel, 0, 3);
+        outer.Controls.Add(statusLabel, 0, 4);
 
-        Controls.Add(layout);
+        Controls.Add(outer);
+    }
+
+    private Panel BuildGeneratorPanel()
+    {
+        var flow = new FlowLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            FlowDirection = FlowDirection.LeftToRight,
+            WrapContents = false,
+        };
+
+        flow.Controls.Add(new Label
+        {
+            Text = "Генератор:",
+            AutoSize = false,
+            Width = 80,
+            Height = 26,
+            TextAlign = ContentAlignment.MiddleLeft,
+        });
+
+        generatorCombo = new ComboBox
+        {
+            DropDownStyle = ComboBoxStyle.DropDownList,
+            Width = 180,
+            Height = 26,
+        };
+        generatorCombo.Items.AddRange(new object[]
+        {
+            "Эрдёша–Реньи",
+            "Двудольный граф",
+            "Цепочка",
+        });
+        generatorCombo.SelectedIndex = 0;
+        generatorCombo.SelectedIndexChanged += (_, _) =>
+        {
+            bool er = generatorCombo.SelectedIndex == 0;
+            probLabel.Visible = er;
+            probUpDown.Visible = er;
+        };
+        flow.Controls.Add(generatorCombo);
+
+        probLabel = new Label
+        {
+            Text = "  p =",
+            AutoSize = false,
+            Width = 36,
+            Height = 26,
+            TextAlign = ContentAlignment.MiddleLeft,
+        };
+        flow.Controls.Add(probLabel);
+
+        probUpDown = new NumericUpDown
+        {
+            Width = 64,
+            Height = 26,
+            Minimum = 0.01m,
+            Maximum = 1m,
+            DecimalPlaces = 2,
+            Increment = 0.05m,
+            Value = 0.15m,
+        };
+        flow.Controls.Add(probUpDown);
+
+        return flow;
     }
 
     private DataGridView BuildGrid()
@@ -67,21 +137,25 @@ public class DetailedComparisonForm : Form
             BorderStyle = BorderStyle.None,
             SelectionMode = DataGridViewSelectionMode.FullRowSelect,
             DefaultCellStyle = { Font = new Font("Segoe UI", 9) },
-            ColumnHeadersDefaultCellStyle = { Font = new Font("Segoe UI", 9, FontStyle.Bold), BackColor = Color.FromArgb(240, 240, 245) },
+            ColumnHeadersDefaultCellStyle =
+            {
+                Font = new Font("Segoe UI", 9, FontStyle.Bold),
+                BackColor = Color.FromArgb(240, 240, 245),
+            },
             EnableHeadersVisualStyles = false,
         };
 
         (string Header, float Weight)[] cols =
         [
-            ("Вершин",        45),
-            ("Рёбер",         45),
-            ("KL: Межсоед.",  80),
-            ("KL: Время (мс)", 80),
-            ("KL: Итерации",  75),
-            ("FM: Межсоед.",  80),
-            ("FM: Время (мс)", 80),
-            ("FM: Итерации",  75),
-            ("FM лучше на",   70),
+            ("Вершин",         45),
+            ("Рёбер",          50),
+            ("KL: Межсоед.",   80),
+            ("KL: Время (мс)", 82),
+            ("KL: Ходов",      68),
+            ("FM: Межсоед.",   80),
+            ("FM: Время (мс)", 82),
+            ("FM: Ходов",      68),
+            ("FM лучше на",    68),
         ];
 
         foreach (var (header, weight) in cols)
@@ -108,51 +182,60 @@ public class DetailedComparisonForm : Form
         statusLabel.Text = "Выполняется...";
 
         int[] sizes = [10, 25, 50, 100, 200, 400, 600];
-        const double prob = 0.15;
         const int runs = 3;
 
         progressBar.Maximum = sizes.Length * runs;
         progressBar.Value = 0;
 
+        int genIndex = generatorCombo.SelectedIndex;
+        double prob = (double)probUpDown.Value;
+
         await Task.Run(() =>
         {
             foreach (int n in sizes)
             {
-                long klMs = 0, fmMs = 0;
+                double klMs = 0, fmMs = 0;
                 int klCut = 0, fmCut = 0;
-                int klIter = 0, fmIter = 0;
+                int klMoves = 0, fmMoves = 0;
                 int edges = 0;
 
                 for (int r = 0; r < runs; r++)
                 {
-                    var graph = new ErdosRenyiProbabilityGenerator(n, prob).Generate();
+                    var graph = genIndex switch
+                    {
+                        0 => new ErdosRenyiProbabilityGenerator(n, prob).Generate(),
+                        1 => new BipartiteGraphGenerator(n / 2, n - n / 2,
+                                 (int)(n / 2.0 * (n - n / 2.0) * 0.3)).Generate(),
+                        2 => new ChainGraphGenerator(n).Generate(),
+                        _ => throw new InvalidOperationException(),
+                    };
                     edges = graph.EdgesCount;
 
                     var sw = Stopwatch.StartNew();
                     var klGen = new KernighanLinGraphPartitionGenerator(2);
                     var klPart = klGen.Generate(graph);
                     sw.Stop();
-                    klMs   += sw.ElapsedMilliseconds;
-                    klCut  += klPart.CutSize;
-                    klIter += klGen.IterationsCount;
+                    klMs    += sw.Elapsed.TotalMilliseconds;
+                    klCut   += klPart.CutSize;
+                    klMoves += klGen.IterationsCount;
 
                     sw.Restart();
                     var fmGen = new FiducciaMattheysesGraphPartitionGenerator();
                     var fmPart = fmGen.Generate(graph);
                     sw.Stop();
-                    fmMs   += sw.ElapsedMilliseconds;
-                    fmCut  += fmPart.CutSize;
-                    fmIter += fmGen.IterationsCount;
+                    fmMs    += sw.Elapsed.TotalMilliseconds;
+                    fmCut   += fmPart.CutSize;
+                    fmMoves += fmGen.IterationsCount;
 
                     Invoke(() => progressBar.Value++);
                 }
 
-                double avgKlCut  = (double)klCut  / runs;
-                double avgFmCut  = (double)fmCut  / runs;
-                double avgKlMs   = (double)klMs   / runs;
-                double avgFmMs   = (double)fmMs   / runs;
-                double avgKlIter = (double)klIter / runs;
-                double avgFmIter = (double)fmIter / runs;
+                double avgKlCut   = (double)klCut   / runs;
+                double avgFmCut   = (double)fmCut   / runs;
+                double avgKlMs    = klMs    / runs;
+                double avgFmMs    = fmMs    / runs;
+                double avgKlMoves = (double)klMoves / runs;
+                double avgFmMoves = (double)fmMoves / runs;
                 double delta = avgKlCut > 0 ? (avgKlCut - avgFmCut) / avgKlCut * 100.0 : 0.0;
 
                 Invoke(() =>
@@ -161,11 +244,11 @@ public class DetailedComparisonForm : Form
                         n,
                         edges,
                         avgKlCut.ToString("F1"),
-                        avgKlMs.ToString("F1"),
-                        avgKlIter.ToString("F1"),
+                        avgKlMs.ToString("F2"),
+                        avgKlMoves.ToString("F1"),
                         avgFmCut.ToString("F1"),
-                        avgFmMs.ToString("F1"),
-                        avgFmIter.ToString("F1"),
+                        avgFmMs.ToString("F2"),
+                        avgFmMoves.ToString("F1"),
                         (delta >= 0 ? "+" : "") + delta.ToString("F1") + "%"
                     );
 
@@ -183,8 +266,15 @@ public class DetailedComparisonForm : Form
 
             Invoke(() =>
             {
-                statusLabel.Text = $"Готово. Каждый размер тестировался {runs} раза на графах Эрдёша–Реньи (p = {prob}). " +
-                                   "Зелёным выделено лучшее значение по столбцу.";
+                string genName = genIndex switch
+                {
+                    0 => $"Эрдёша–Реньи (p={prob})",
+                    1 => "Двудольный граф (плотность 30%)",
+                    2 => "Цепочка",
+                    _ => ""
+                };
+                statusLabel.Text = $"Готово. Генератор: {genName}. {runs} прогона на размер, средние значения. " +
+                                   "«Ходов» = число применённых перестановок вершин/пар.";
                 runButton.Enabled = true;
             });
         });

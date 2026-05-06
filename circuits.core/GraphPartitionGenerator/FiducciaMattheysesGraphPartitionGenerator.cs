@@ -15,8 +15,9 @@ public class FiducciaMattheysesGraphPartitionGenerator : GraphPartitionGenerator
     {
         var partition = InitPartition(graph);
         iterationsCount = 0;
-        while (RunPass(partition, graph))
-            iterationsCount++;
+        int applied;
+        while ((applied = RunPass(partition, graph)) > 0)
+            iterationsCount += applied;
         return partition;
     }
 
@@ -31,7 +32,7 @@ public class FiducciaMattheysesGraphPartitionGenerator : GraphPartitionGenerator
         return partition;
     }
 
-    private bool RunPass(GraphPartition partition, Graph graph)
+    private int RunPass(GraphPartition partition, Graph graph)
     {
         var vertices = graph.Vertices.ToList();
         var D = ComputeAllD(vertices, partition, graph);
@@ -95,12 +96,12 @@ public class FiducciaMattheysesGraphPartitionGenerator : GraphPartitionGenerator
         for (int i = moves.Count - 1; i >= 0; i--)
             partition.MoveVertex(moves[i].vertex, moves[i].fromPart);
 
-        if (maxGain <= 0) return false;
+        if (maxGain <= 0) return 0;
 
         for (int i = 0; i < bestPrefix; i++)
             partition.MoveVertex(moves[i].vertex, moves[i].toPart);
 
-        return true;
+        return bestPrefix;
     }
 
     private static Dictionary<Vertex, int> ComputeAllD(List<Vertex> vertices, GraphPartition partition, Graph graph)
