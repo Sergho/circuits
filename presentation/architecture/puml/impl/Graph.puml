@@ -3,11 +3,11 @@
 !include ../domain/IGraph.puml
 
 class Graph {
-    - vertices: HashSet<IVertex> {readOnly}
-    - edges: HashSet<IEdge> {readOnly}
-    - adjacencyMap: Dictionary<IVertex, HashSet<IVertex>> {readOnly}
-    
-    - Graph(int verticesCount)
+    - vertices: HashSet<IVertex>
+    - edges: HashSet<IEdge>
+    - adjacencyMap: Dictionary<IVertex, HashSet<IVertex>>
+
+    - Graph(verticesCount: int)
     + Empty(verticesCount: int): IGraph {static}
 }
 

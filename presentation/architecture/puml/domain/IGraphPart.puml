@@ -4,7 +4,7 @@ interface IGraphPart {
     + Vertices: IEnumerable<IVertex> {readOnly}
 
     + HasVertex(vertex: IVertex): bool
-    + UseParentVertex(vertex: IVertex): void
+    + AssignVertex(vertex: IVertex): void
     + RemoveVertex(vertex: IVertex): void
 }
 

@@ -1,7 +1,7 @@
 @startuml IGraphLogger
 
 interface IGraphLogger {
-    + Log(IGraphLoggable content): void
+    + Log(content: IGraphLoggable): void
 }
 
 @enduml

@@ -1,18 +1,18 @@
-@startuml GraphLogger
+@startuml FileGraphLogger
 
 !include ../domain/IGraphLogger.puml
 
-class GraphLogger {
-    - fileStream: FileStream {readOnly}
-    - streamWriter: StreamWriter {readOnly}
-    - isDisposed: bool {readOnly}
-    - filePath: string {readOnly}
-    - dirPath: string {readOnly}
+class FileGraphLogger {
+    - fileStream: FileStream
+    - streamWriter: StreamWriter
+    - isDisposed: bool
+    - filePath: string
+    - dirPath: string
 
-    + GraphLogger(filepath: string)
-    + ~GraphLogger()
+    + FileGraphLogger(filepath: string)
+    + Dispose(): void
 }
 
-GraphLogger ..|> IGraphLogger
+FileGraphLogger ..|> IGraphLogger
 
 @enduml

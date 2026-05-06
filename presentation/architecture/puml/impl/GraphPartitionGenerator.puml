@@ -3,9 +3,9 @@
 !include ../domain/IGraphPartitionGenerator.puml
 
 class KernighanLinGraphPartitionGenerator {
-    - partsCount: int {readOnly}
-    - random: Random {readOnly}
-    - cachedGains: Dictionary<IEdge, int> {readOnly}
+    - partsCount: int
+    - random: Random
+    - cachedGains: Dictionary<IEdge, int>
 
     + KernighanLinGraphPartitionGenerator(partsCount: int)
 }

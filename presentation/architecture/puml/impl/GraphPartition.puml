@@ -3,8 +3,8 @@
 !include ../domain/IGraphPartition.puml
 
 class GraphPartition {
-    - parts: IGraphParts[] {readOnly}
-    - vertexToPart: Dictionary<IVertex, IGraphPart> {readOnly}
+    - parts: IGraphPart[]
+    - vertexToPart: Dictionary<IVertex, IGraphPart>
 
     + GraphPartition(graph: IGraph, partsCount: int)
 }

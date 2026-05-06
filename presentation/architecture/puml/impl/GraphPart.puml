@@ -3,9 +3,9 @@
 !include ../domain/IGraphPart.puml
 
 class GraphPart {
-    - parent: IGraph {readOnly}
-    - vertices: HashSet<IVertex> {readOnly}
-    
+    - parent: IGraph
+    - vertices: HashSet<IVertex>
+
     + GraphPart(parent: IGraph)
 }
 

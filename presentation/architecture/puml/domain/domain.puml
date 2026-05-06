@@ -13,21 +13,21 @@ left to right direction
 !include IGraphPartitionGenerator.puml
 !include IGraphPartitionStats.puml
 
-IEdge --> IVertex
+IEdge --> "2" IVertex
 
-IGraph o-> IVertex
-IGraph o-> IEdge
+IGraph o-> "*" IVertex
+IGraph o-> "*" IEdge
 IGraph --|> IGraphLoggable
 
-IGraphPart o-> IVertex
+IGraphPart o-> "*" IVertex
 IGraphPart --|> IGraphLoggable
 
 IGraphGenerator ..> IGraph
 
 IGraphLogger ..> IGraphLoggable
 
-IGraphPartition o-> IGraphPart
-IGraphPartition --> IVertex
+IGraphPartition o-> "*" IGraphPart
+IGraphPartition --> IGraph
 
 IGraphPartitionGenerator ..> IGraphPartition
 IGraphPartitionGenerator ..> IGraph
