@@ -1,9 +1,9 @@
-public class BipartiteGraphGenerator : GraphGenerator
+public class BipartiteGraphGenerator : IGraphGenerator
 {
-    private readonly int leftPartitionSize;
-    private readonly int rightPartitionSize;
-    private readonly int edgesCount;
-    private readonly Random random;
+    private int leftPartitionSize;
+    private int rightPartitionSize;
+    private int edgesCount;
+    private Random random;
 
     public BipartiteGraphGenerator(int leftPartitionSize, int rightPartitionSize, int edgesCount)
     {
@@ -32,20 +32,20 @@ public class BipartiteGraphGenerator : GraphGenerator
         return null;
     }
 
-    public Graph Generate()
+    public IGraph Generate()
     {
-        Graph graph = GetEmptyGraph();
+        IGraph graph = GetEmptyGraph();
         FillGraph(graph);
 
         return graph;
     }
 
-    private Graph GetEmptyGraph()
+    private IGraph GetEmptyGraph()
     {
         return Graph.Empty(leftPartitionSize + rightPartitionSize);
     }
 
-    private void FillGraph(Graph graph)
+    private void FillGraph(IGraph graph)
     {
         foreach (var edge in GenerateRandomEdges())
         {
@@ -53,10 +53,10 @@ public class BipartiteGraphGenerator : GraphGenerator
         }
     }
 
-    private List<Edge> GenerateRandomEdges()
+    private List<IEdge> GenerateRandomEdges()
     {
         var allEdges = GenerateAllPossibleEdges();
-        var result = new List<Edge>();
+        var result = new List<IEdge>();
 
         for (int i = 0; i < edgesCount; i++)
         {
@@ -68,9 +68,9 @@ public class BipartiteGraphGenerator : GraphGenerator
         return result;
     }
 
-    private List<Edge> GenerateAllPossibleEdges()
+    private List<IEdge> GenerateAllPossibleEdges()
     {
-        var edges = new List<Edge>();
+        var edges = new List<IEdge>();
         for (int i = 1; i <= leftPartitionSize; i++)
         {
             for (int j = leftPartitionSize + 1; j <= leftPartitionSize + rightPartitionSize; j++)

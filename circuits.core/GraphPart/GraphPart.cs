@@ -1,15 +1,15 @@
-public class GraphPart : GraphLoggable
+public class GraphPart : IGraphPart
 {
-    private readonly Graph parent;
-    private readonly HashSet<Vertex> vertices;
+    private IGraph parent;
+    private HashSet<IVertex> vertices;
 
     public int VerticesCount { get => vertices.Count; }
     public int EdgesCount { get => GetEdges().ToList().Count; }
 
-    public IEnumerable<Vertex> Vertices { get => vertices; }
-    public IEnumerable<Edge> Edges { get => GetEdges(); }
+    public IEnumerable<IVertex> Vertices { get => vertices; }
+    public IEnumerable<IEdge> Edges { get => GetEdges(); }
 
-    private IEnumerable<Edge> GetEdges()
+    private IEnumerable<IEdge> GetEdges()
     {
         foreach (var edge in parent.Edges)
         {
@@ -19,25 +19,25 @@ public class GraphPart : GraphLoggable
         }
     }
     
-    public GraphPart(Graph parent)
+    public GraphPart(IGraph parent)
     {
         this.parent = parent;
         vertices = [];
     }
 
-    public void UseParentVertex(Vertex vertex)
+    public void AssignVertex(IVertex vertex)
     {
         if(!parent.HasVertex(vertex)) return;
 
         vertices.Add(vertex);
     }
 
-    public bool HasVertex(Vertex vertex)
+    public bool HasVertex(IVertex vertex)
     {
         return vertices.Contains(vertex);
     }
 
-    public void RemoveVertex(Vertex vertex)
+    public void RemoveVertex(IVertex vertex)
     {
         vertices.Remove(vertex);
     }

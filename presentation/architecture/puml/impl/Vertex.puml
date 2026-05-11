@@ -1,0 +1,11 @@
+@startuml Vertex
+
+!include ../domain/IVertex.puml
+
+class Vertex {
+    + Vertex(index: int)
+}
+
+Vertex ..|> IVertex
+
+@enduml

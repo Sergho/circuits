@@ -1,0 +1,8 @@
+@startuml IGraphPartitionGenerator
+
+interface IGraphPartitionGenerator {
+    + LastIterationsCount: int {readOnly}
+    + Generate(graph: IGraph): IGraphPartition
+}
+
+@enduml

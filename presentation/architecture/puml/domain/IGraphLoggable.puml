@@ -1,0 +1,9 @@
+@startuml IGraphLoggable
+
+interface IGraphLoggable {
+    + VerticesCount: int {readOnly}
+    + EdgesCount: int {readOnly}
+    + Edges: IEnumerable<IEdge> {readOnly}
+}
+
+@enduml

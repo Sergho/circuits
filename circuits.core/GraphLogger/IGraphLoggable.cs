@@ -1,7 +1,7 @@
-public interface GraphLoggable
+public interface IGraphLoggable
 {
     public int VerticesCount { get; }
     public int EdgesCount { get; }
 
-    public IEnumerable<Edge> Edges { get; }
+    public IEnumerable<IEdge> Edges { get; }
 }

@@ -1,0 +1,12 @@
+@startuml GraphPartitionStats
+
+!include ../domain/IGraphPartitionStats.puml
+
+class GraphPartitionStats {
+    + GraphPartitionStats(partition: IGraphPartition)
+    + GraphPartitionStats(graph: IGraph, partitionGenerator: IGraphPartitionGenerator)
+}
+
+GraphPartitionStats ..|> IGraphPartitionStats
+
+@enduml

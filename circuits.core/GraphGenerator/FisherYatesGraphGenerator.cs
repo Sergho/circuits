@@ -1,8 +1,8 @@
-public class FisherYatesGraphGenerator : GraphGenerator
+public class FisherYatesGraphGenerator : IGraphGenerator
 {
-    private readonly int verticesCount;
-    private readonly int edgesCount;
-    private readonly Random random;
+    private int verticesCount;
+    private int edgesCount;
+    private Random random;
 
     public FisherYatesGraphGenerator(int verticesCount, int edgesCount)
     {
@@ -27,20 +27,20 @@ public class FisherYatesGraphGenerator : GraphGenerator
         return null;
     }
 
-    public Graph Generate()
+    public IGraph Generate()
     {
-        Graph graph = GetEmptyGraph();
+        IGraph graph = GetEmptyGraph();
         FillGraph(graph);
 
         return graph;
     }
 
-    private Graph GetEmptyGraph()
+    private IGraph GetEmptyGraph()
     {
         return Graph.Empty(verticesCount);
     }
 
-    private void FillGraph(Graph graph)
+    private void FillGraph(IGraph graph)
     {
         foreach (var edge in GenerateRandomEdges())
         {
@@ -49,10 +49,10 @@ public class FisherYatesGraphGenerator : GraphGenerator
     }
 
     
-    private List<Edge> GenerateRandomEdges()
+    private List<IEdge> GenerateRandomEdges()
     {
         var allEdges = GenerateAllEdges();
-        var result = new List<Edge>();
+        var result = new List<IEdge>();
 
         for (int i = 0; i < edgesCount; i++)
         {
@@ -64,9 +64,9 @@ public class FisherYatesGraphGenerator : GraphGenerator
         return result;
     }
 
-    private List<Edge> GenerateAllEdges()
+    private List<IEdge> GenerateAllEdges()
     {
-        var edges = new List<Edge>();
+        var edges = new List<IEdge>();
 
         for (int i = 1; i <= verticesCount; i++)
         {

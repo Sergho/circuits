@@ -1,14 +1,14 @@
-public class Graph : GraphLoggable
+public class Graph : IGraph
 {
-    private readonly HashSet<Vertex> vertices;
-    private readonly HashSet<Edge> edges;
-    private readonly Dictionary<Vertex, HashSet<Vertex>> adjacencyMap;
+    private HashSet<IVertex> vertices;
+    private HashSet<IEdge> edges;
+    private Dictionary<IVertex, HashSet<IVertex>> adjacencyMap;
 
     public int VerticesCount { get; }
     public int EdgesCount { get => edges.Count; }
 
-    public IEnumerable<Vertex> Vertices { get => vertices; }
-    public IEnumerable<Edge> Edges { get => edges; }
+    public IEnumerable<IVertex> Vertices { get => vertices; }
+    public IEnumerable<IEdge> Edges { get => edges; }
 
     public static Graph Empty(int verticesCount)
     {
@@ -37,17 +37,17 @@ public class Graph : GraphLoggable
         }
     }
 
-    public bool HasVertex(Vertex vertex)
+    public bool HasVertex(IVertex vertex)
     {
         return vertices.Contains(vertex);
     }
 
-    public bool HasEdge(Edge edge)
+    public bool HasEdge(IEdge edge)
     {
         return edges.Contains(edge);
     }
 
-    public void AddEdge(Edge edge)
+    public void AddEdge(IEdge edge)
     {
         if (edges.Contains(edge)) return;
         if (!vertices.Contains(edge.First) || !vertices.Contains(edge.Second)) return;
@@ -57,7 +57,7 @@ public class Graph : GraphLoggable
         adjacencyMap[edge.Second].Add(edge.First);
     }
 
-    public IEnumerable<Vertex> GetAdjacencyList(Vertex vertex)
+    public IEnumerable<IVertex> GetAdjacencyList(IVertex vertex)
     {
         return adjacencyMap[vertex];
     } 
