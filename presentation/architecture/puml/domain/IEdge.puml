@@ -1,0 +1,11 @@
+@startuml IEdge
+
+interface IEdge {
+    + First: IVertex {readOnly}
+    + Second: IVertex {readOnly}
+    + GetHashCode(): int
+    + Equals(other?: IEdge): bool
+    + GetNormalized(): IEdge
+}
+
+@enduml

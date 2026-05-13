@@ -1,13 +1,26 @@
-public class GraphPartition
+public class GraphPartition : IGraphPartition
 {
-    private readonly GraphPart[] parts;
-    private Dictionary<Vertex, GraphPart> vertexToPart;
+    private GraphPart[] parts;
+    private Dictionary<IVertex, IGraphPart> vertexToPart;
 
-    public Graph Graph { get; }
+    public IGraph Graph { get; }
     public int PartsCount { get; }
-    public IEnumerable<GraphPart> Parts { get => parts; }
+    public IEnumerable<IGraphPart> Parts { get => parts; }
+    public int CrossEdgesCount { get => GetCrossEdgesCount(); }
 
-    public GraphPartition(Graph graph, int partsCount)
+    private int GetCrossEdgesCount()
+    {
+        int totalExternalVertices = 0;
+        foreach(var vertex in Graph.Vertices)
+        {
+            totalExternalVertices += GetExternalVerticesCount(vertex);
+        }
+
+        // Если не поделить на 2, то каждое ребро учтется два раза
+        return totalExternalVertices / 2;
+    }
+
+    public GraphPartition(IGraph graph, int partsCount)
     {
         Graph = graph;
         PartsCount = partsCount;
@@ -41,7 +54,7 @@ public class GraphPartition
 
             for(int vertexIndex = currentIndex; vertexIndex < currentIndex + partSize; vertexIndex++)
             {
-                part.UseParentVertex(vertices[vertexIndex]);
+                part.AssignVertex(vertices[vertexIndex]);
                 vertexToPart[vertices[vertexIndex]] = part;
             }
 
@@ -50,7 +63,7 @@ public class GraphPartition
         }
     }
 
-    public void SwapVertices(Vertex first, Vertex second)
+    public void SwapVertices(IVertex first, IVertex second)
     {
         if(!Graph.HasVertex(first) || !Graph.HasVertex(second)) return;
 
@@ -60,14 +73,14 @@ public class GraphPartition
         firstPart.RemoveVertex(first);
         secondPart.RemoveVertex(second);
 
-        firstPart.UseParentVertex(second);
-        secondPart.UseParentVertex(first);
+        firstPart.AssignVertex(second);
+        secondPart.AssignVertex(first);
 
         vertexToPart[second] = firstPart;
         vertexToPart[first] = secondPart;
     }
 
-    public int CalculateGain(Vertex firstVertex, Vertex secondVertex)
+    public int CalculateGain(IVertex firstVertex, IVertex secondVertex)
     {
         int internalCount = GetInternalVerticesCount(firstVertex) + GetInternalVerticesCount(secondVertex);
         int externalCount = GetExternalVerticesCount(firstVertex) + GetExternalVerticesCount(secondVertex);
@@ -76,20 +89,7 @@ public class GraphPartition
         return externalCount - internalCount - (graphHasEdge ? 2 : 0);
     }
 
-    public int GetCrossEdgesCount()
-    {
-        int totalExternalVertices = 0;
-        foreach(var vertex in Graph.Vertices)
-        {
-            totalExternalVertices += GetExternalVerticesCount(vertex);
-        }
-
-        return totalExternalVertices / 2;
-    }
-
-    public int CutSize => GetCrossEdgesCount();
-
-    public int GetPartIndex(Vertex vertex)
+    public int GetPartIndex(IVertex vertex)
     {
         var part = GetPart(vertex);
         for (int i = 0; i < parts.Length; i++)
@@ -97,22 +97,22 @@ public class GraphPartition
         throw new InvalidOperationException("Vertex not found in any partition part");
     }
 
-    public void MoveVertex(Vertex vertex, int toPartIndex)
+    public void MoveVertex(IVertex vertex, int toPartIndex)
     {
         if (!Graph.HasVertex(vertex)) return;
         var fromPart = GetPart(vertex);
         if (fromPart == parts[toPartIndex]) return;
         fromPart.RemoveVertex(vertex);
-        parts[toPartIndex].UseParentVertex(vertex);
+        parts[toPartIndex].AssignVertex(vertex);
         vertexToPart[vertex] = parts[toPartIndex];
     }
 
-    public GraphPart GetPart(Vertex vertex)
+    public IGraphPart GetPart(IVertex vertex)
     {
         return vertexToPart[vertex];
     }
 
-    private int GetInternalVerticesCount(Vertex firstVertex)
+    private int GetInternalVerticesCount(IVertex firstVertex)
     {
         var part = GetPart(firstVertex);
         int counter = 0;
@@ -124,7 +124,7 @@ public class GraphPartition
         return counter;
     }
 
-    private int GetExternalVerticesCount(Vertex firstVertex)
+    private int GetExternalVerticesCount(IVertex firstVertex)
     {
         var part = GetPart(firstVertex);
         int counter = 0;

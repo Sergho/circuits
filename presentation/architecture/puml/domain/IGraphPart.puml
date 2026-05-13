@@ -1,0 +1,11 @@
+@startuml IGraphPart
+
+interface IGraphPart {
+    + Vertices: IEnumerable<IVertex> {readOnly}
+
+    + HasVertex(vertex: IVertex): bool
+    + AssignVertex(vertex: IVertex): void
+    + RemoveVertex(vertex: IVertex): void
+}
+
+@enduml

@@ -1,0 +1,15 @@
+@startuml GraphPartitionGenerator
+
+!include ../domain/IGraphPartitionGenerator.puml
+
+class KernighanLinGraphPartitionGenerator {
+    - partsCount: int
+    - random: Random
+    - cachedGains: Dictionary<IEdge, int>
+
+    + KernighanLinGraphPartitionGenerator(partsCount: int)
+}
+
+KernighanLinGraphPartitionGenerator ..|> IGraphPartitionGenerator
+
+@enduml

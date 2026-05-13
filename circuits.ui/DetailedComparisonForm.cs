@@ -216,16 +216,16 @@ public class DetailedComparisonForm : Form
                     var klPart = klGen.Generate(graph);
                     sw.Stop();
                     klMs    += sw.Elapsed.TotalMilliseconds;
-                    klCut   += klPart.CutSize;
-                    klMoves += klGen.IterationsCount;
+                    klCut   += klPart.CrossEdgesCount;
+                    klMoves += klGen.LastIterationsCount;
 
                     sw.Restart();
                     var fmGen = new FiducciaMattheysesGraphPartitionGenerator();
                     var fmPart = fmGen.Generate(graph);
                     sw.Stop();
                     fmMs    += sw.Elapsed.TotalMilliseconds;
-                    fmCut   += fmPart.CutSize;
-                    fmMoves += fmGen.IterationsCount;
+                    fmCut   += fmPart.CrossEdgesCount;
+                    fmMoves += fmGen.LastIterationsCount;
 
                     Invoke(() => progressBar.Value++);
                 }

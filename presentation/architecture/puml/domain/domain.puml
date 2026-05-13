@@ -1,0 +1,37 @@
+@startuml Domain
+
+left to right direction
+
+!include IVertex.puml
+!include IEdge.puml
+!include IGraph.puml
+!include IGraphPart.puml
+!include IGraphLoggable.puml
+!include IGraphLogger.puml
+!include IGraphGenerator.puml
+!include IGraphPartition.puml
+!include IGraphPartitionGenerator.puml
+!include IGraphPartitionStats.puml
+
+IEdge --> "2" IVertex
+
+IGraph o-> "*" IVertex
+IGraph o-> "*" IEdge
+IGraph --|> IGraphLoggable
+
+IGraphPart o-> "*" IVertex
+IGraphPart --|> IGraphLoggable
+
+IGraphGenerator ..> IGraph
+
+IGraphLogger ..> IGraphLoggable
+
+IGraphPartition o-> "*" IGraphPart
+IGraphPartition --> IGraph
+
+IGraphPartitionGenerator ..> IGraphPartition
+IGraphPartitionGenerator ..> IGraph
+
+IGraphPartitionStats --> IGraphPartition
+
+@enduml

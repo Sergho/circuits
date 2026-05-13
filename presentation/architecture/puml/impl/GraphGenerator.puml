@@ -1,0 +1,63 @@
+@startuml GraphGenerator
+
+left to right direction
+
+!include ../domain/IGraphGenerator.puml
+
+class BipartiteGraphGenerator {
+    - leftPartitionSize: int
+    - rightPartitionSize: int
+    - edgesCount: int
+    - random: Random
+
+    + BipartiteGraphGenerator(leftPartitionSize: int, rightPartitionSize: int, edgesCount: int)
+}
+
+BipartiteGraphGenerator ..|> IGraphGenerator
+
+class ChainGraphGenerator {
+    - verticesCount: int
+
+    + ChainGraphGenerator(verticesCount: int)
+}
+
+ChainGraphGenerator ..|> IGraphGenerator
+
+class CliqueGraphGenerator {
+    - verticesCount: int
+
+    + CliqueGraphGenerator(verticesCount: int)
+}
+
+CliqueGraphGenerator ..|> IGraphGenerator
+
+class ErdosRenyiGraphGenerator {
+    - verticesCount: int
+    - edgeProbability: double
+    - random: Random
+
+    + ErdosRenyiGraphGenerator(verticesCount: int, edgeProbability: double)
+}
+
+ErdosRenyiGraphGenerator ..|> IGraphGenerator
+
+class FisherYatesGraphGenerator {
+    - verticesCount: int
+    - edgesCount: int
+    - random: Random
+
+    + FisherYatesGraphGenerator(verticesCount: int, edgesCount: int)
+}
+
+FisherYatesGraphGenerator ..|> IGraphGenerator
+
+class RegularGridGraphGenerator {
+    - rowsCount: int
+    - colsCount: int
+
+    + RegularGridGraphGenerator(rowsCount: int, colsCount: int)
+}
+
+RegularGridGraphGenerator ..|> IGraphGenerator
+
+@enduml

@@ -1,0 +1,17 @@
+@startuml FileGraphLogger
+
+!include ../domain/IGraphLogger.puml
+
+class FileGraphLogger {
+    - fileStream: FileStream
+    - streamWriter: StreamWriter
+    - isDisposed: bool
+    - filePath: string
+
+    + FileGraphLogger(filepath: string)
+    + Dispose(): void
+}
+
+FileGraphLogger ..|> IGraphLogger
+
+@enduml

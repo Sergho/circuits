@@ -1,23 +1,23 @@
-public class Edge : IEquatable<Edge>
+public class Edge : IEdge
 {
-    public Vertex First { get; }
-    public Vertex Second { get; }
+    public IVertex First { get; }
+    public IVertex Second { get; }
 
-    public Edge(Vertex first, Vertex second)
+    public Edge(IVertex first, IVertex second)
     {
         First = first;
         Second = second;
     }
 
-    public Edge GetNormalized()
+    public IEdge GetNormalized()
     {
-        Vertex min = First.CompareTo(Second) > 0 ? Second : First;
-        Vertex max = First.CompareTo(Second) > 0 ? First : Second;
+        IVertex min = First.CompareTo(Second) > 0 ? Second : First;
+        IVertex max = First.CompareTo(Second) > 0 ? First : Second;
 
         return new Edge(min, max);
     }
 
-    public bool Equals(Edge? other)
+    public bool Equals(IEdge? other)
     {
         if (other is null) return false;
 
@@ -25,6 +25,11 @@ public class Edge : IEquatable<Edge>
         var otherNormalized = other.GetNormalized();
 
         return thisNormalized.First.Equals(otherNormalized.First) && thisNormalized.Second.Equals(otherNormalized.Second);
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return obj is IEdge edge && Equals(edge);
     }
 
     public override int GetHashCode()

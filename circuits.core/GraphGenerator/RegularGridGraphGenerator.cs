@@ -1,7 +1,7 @@
-public class RegularGridGraphGenerator : GraphGenerator
+public class RegularGridGraphGenerator : IGraphGenerator
 {
-    private readonly int rowsCount;
-    private readonly int colsCount;
+    private int rowsCount;
+    private int colsCount;
 
     public RegularGridGraphGenerator(int rowsCount, int colsCount)
     {
@@ -23,20 +23,20 @@ public class RegularGridGraphGenerator : GraphGenerator
         return null;
     }
 
-    public Graph Generate()
+    public IGraph Generate()
     {
-        Graph graph = GetEmptyGraph();
+        IGraph graph = GetEmptyGraph();
         FillGraph(graph);
 
         return graph;
     }
 
-    private Graph GetEmptyGraph()
+    private IGraph GetEmptyGraph()
     {
         return Graph.Empty(rowsCount * colsCount);
     }
 
-    private void FillGraph(Graph graph)
+    private void FillGraph(IGraph graph)
     {
         foreach (var edge in GenerateHorizontalEdges())
         {
@@ -49,9 +49,9 @@ public class RegularGridGraphGenerator : GraphGenerator
         }
     }
 
-    private List<Edge> GenerateHorizontalEdges()
+    private List<IEdge> GenerateHorizontalEdges()
     {
-        var edges = new List<Edge>();
+        var edges = new List<IEdge>();
 
         for (int rowIndex = 0; rowIndex < rowsCount; rowIndex++)
         {
@@ -67,9 +67,9 @@ public class RegularGridGraphGenerator : GraphGenerator
         return edges;
     }
 
-    private List<Edge> GenerateVerticalEdges()
+    private List<IEdge> GenerateVerticalEdges()
     {
-        var edges = new List<Edge>();
+        var edges = new List<IEdge>();
 
         for (int rowIndex = 0; rowIndex < rowsCount - 1; rowIndex++)
         {

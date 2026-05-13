@@ -1,8 +1,8 @@
-public class ErdosRenyiProbabilityGenerator : GraphGenerator
+public class ErdosRenyiProbabilityGenerator : IGraphGenerator
 {
-    private readonly int verticesCount;
-    private readonly double edgeProbability;
-    private readonly Random random;
+    private int verticesCount;
+    private double edgeProbability;
+    private Random random;
 
     public ErdosRenyiProbabilityGenerator(int verticesCount, double edgeProbability)
     {
@@ -26,20 +26,20 @@ public class ErdosRenyiProbabilityGenerator : GraphGenerator
         return null;
     }
 
-    public Graph Generate()
+    public IGraph Generate()
     {
-        Graph graph = GetEmptyGraph();
+        IGraph graph = GetEmptyGraph();
         FillGraph(graph);
 
         return graph;
     }
 
-    private Graph GetEmptyGraph()
+    private IGraph GetEmptyGraph()
     {
         return Graph.Empty(verticesCount);
     }
 
-    private void FillGraph(Graph graph)
+    private void FillGraph(IGraph graph)
     {
         for (int i = 1; i <= verticesCount; i++)
         {

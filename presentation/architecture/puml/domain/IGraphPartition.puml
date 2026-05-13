@@ -1,0 +1,14 @@
+@startuml IGraphPartition
+
+interface IGraphPartition {
+    + Graph: IGraph {readOnly}
+    + PartsCount: int {readOnly}
+    + Parts: IEnumerable<IGraphPart> {readOnly}
+    + CrossEdgesCount: int {readOnly}
+
+    + SwapVertices(first: IVertex, second: IVertex): void
+    + CalculateGain(first: IVertex, second: IVertex): int
+    + GetPart(vertex: IVertex): IGraphPart
+}
+
+@enduml

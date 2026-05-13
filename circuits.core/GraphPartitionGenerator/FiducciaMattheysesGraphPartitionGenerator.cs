@@ -1,17 +1,16 @@
-public class FiducciaMattheysesGraphPartitionGenerator : GraphPartitionGenerator
+public class FiducciaMattheysesGraphPartitionGenerator : IGraphPartitionGenerator
 {
     private int iterationsCount;
     private readonly Random random;
 
     public int LastIterationsCount => iterationsCount;
-    public int IterationsCount => iterationsCount;
 
     public FiducciaMattheysesGraphPartitionGenerator()
     {
         random = new();
     }
 
-    public GraphPartition Generate(Graph graph)
+    public IGraphPartition Generate(IGraph graph)
     {
         var partition = InitPartition(graph);
         iterationsCount = 0;
@@ -21,7 +20,7 @@ public class FiducciaMattheysesGraphPartitionGenerator : GraphPartitionGenerator
         return partition;
     }
 
-    private GraphPartition InitPartition(Graph graph)
+    private GraphPartition InitPartition(IGraph graph)
     {
         var partition = new GraphPartition(graph, 2);
         for (int i = 1; i <= graph.VerticesCount; i++)
@@ -32,19 +31,19 @@ public class FiducciaMattheysesGraphPartitionGenerator : GraphPartitionGenerator
         return partition;
     }
 
-    private int RunPass(GraphPartition partition, Graph graph)
+    private int RunPass(IGraphPartition partition, IGraph graph)
     {
         var vertices = graph.Vertices.ToList();
         var D = ComputeAllD(vertices, partition, graph);
-        var locked = new HashSet<Vertex>(vertices.Count);
-        var moves = new List<(Vertex vertex, int fromPart, int toPart, int cumGain)>();
+        var locked = new HashSet<IVertex>(vertices.Count);
+        var moves = new List<(IVertex vertex, int fromPart, int toPart, int cumGain)>();
         int cumGain = 0;
         int[] sizes = partition.Parts.Select(p => p.VerticesCount).ToArray();
         int[] initSizes = (int[])sizes.Clone();
 
         while (locked.Count < vertices.Count)
         {
-            Vertex? best = null;
+            IVertex? best = null;
             int bestD = int.MinValue;
 
             foreach (var v in vertices)
@@ -104,9 +103,9 @@ public class FiducciaMattheysesGraphPartitionGenerator : GraphPartitionGenerator
         return bestPrefix;
     }
 
-    private static Dictionary<Vertex, int> ComputeAllD(List<Vertex> vertices, GraphPartition partition, Graph graph)
+    private static Dictionary<IVertex, int> ComputeAllD(List<IVertex> vertices, IGraphPartition partition, IGraph graph)
     {
-        var D = new Dictionary<Vertex, int>(vertices.Count);
+        var D = new Dictionary<IVertex, int>(vertices.Count);
         foreach (var v in vertices)
         {
             int partIndex = partition.GetPartIndex(v);

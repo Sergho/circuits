@@ -4,7 +4,7 @@
     {
         var generator = new FisherYatesGraphGenerator(1000, 10000);
         var graph = generator.Generate();
-        var logger = new GraphLogger("./graph.txt");
+        var logger = new FileGraphLogger("./graph.txt");
         
         logger.Log(graph);
 
@@ -17,7 +17,7 @@
         int partIndex = 1;
         foreach(var part in stats.Partition.Parts)
         {
-            var partLogger = new GraphLogger($"./part-{partIndex}.txt");
+            var partLogger = new FileGraphLogger($"./part-{partIndex}.txt");
             partLogger.Log(part);
 
             partIndex++;

@@ -1,0 +1,7 @@
+@startuml IGraphGenerator
+
+interface IGraphGenerator {
+    + Generate(): IGraph
+}
+
+@enduml

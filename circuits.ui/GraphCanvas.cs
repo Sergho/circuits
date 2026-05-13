@@ -1,8 +1,8 @@
 public class GraphCanvas : Control
 {
-    private Graph? graph;
-    private GraphPartition? partition;
-    private readonly Dictionary<Vertex, PointF> positions = new();
+    private IGraph? graph;
+    private IGraphPartition? partition;
+    private readonly Dictionary<IVertex, PointF> positions = new();
 
     private static readonly Color ColorPartA = Color.FromArgb(70, 130, 200);
     private static readonly Color ColorPartB = Color.FromArgb(210, 70, 60);
@@ -16,7 +16,7 @@ public class GraphCanvas : Control
         BackColor = Color.White;
     }
 
-    public void SetData(Graph g, GraphPartition p)
+    public void SetData(IGraph g, IGraphPartition p)
     {
         graph = g;
         partition = p;
@@ -37,7 +37,7 @@ public class GraphCanvas : Control
         PlaceColumn(colB, Width * 0.75f);
     }
 
-    private void PlaceColumn(List<Vertex> verts, float x)
+    private void PlaceColumn(List<IVertex> verts, float x)
     {
         if (verts.Count == 0) return;
         float margin = 30f;

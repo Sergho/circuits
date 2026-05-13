@@ -1,0 +1,11 @@
+@startuml Edge
+
+!include ../domain/IEdge.puml
+
+class Edge {
+    + Edge(first: IVertex, second: IVertex)
+}
+
+Edge ..|> IEdge
+
+@enduml

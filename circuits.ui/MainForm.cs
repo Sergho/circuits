@@ -1,7 +1,7 @@
 public class MainForm : Form
 {
-    private Graph? currentGraph;
-    private GraphPartition? currentPartition;
+    private IGraph? currentGraph;
+    private IGraphPartition? currentPartition;
 
     private ComboBox generatorTypeCombo = null!;
     private NumericUpDown param1UpDown = null!;
@@ -197,7 +197,7 @@ public class MainForm : Form
         }
     }
 
-    private Graph BuildGraph()
+    private IGraph BuildGraph()
     {
         return generatorTypeCombo.SelectedIndex switch
         {
@@ -218,7 +218,7 @@ public class MainForm : Form
         try
         {
             var graph = BuildGraph();
-            GraphPartition partition;
+            IGraphPartition partition;
             int iters;
 
             var sw = Stopwatch.StartNew();
@@ -226,20 +226,20 @@ public class MainForm : Form
             {
                 var gen = new KernighanLinGraphPartitionGenerator(2);
                 partition = gen.Generate(graph);
-                iters = gen.IterationsCount;
+                iters = gen.LastIterationsCount;
             }
             else
             {
                 var gen = new FiducciaMattheysesGraphPartitionGenerator();
                 partition = gen.Generate(graph);
-                iters = gen.IterationsCount;
+                iters = gen.LastIterationsCount;
             }
             sw.Stop();
 
             currentGraph = graph;
             currentPartition = partition;
 
-            cutSizeLabel.Text  = $"Межсоединений: {partition.CutSize}";
+            cutSizeLabel.Text  = $"Межсоединений: {partition.CrossEdgesCount}";
             timeLabel.Text     = $"Время: {sw.ElapsedMilliseconds} мс";
             iterLabel.Text     = $"Итераций: {iters}";
             var parts = partition.Parts.ToArray();
@@ -287,8 +287,8 @@ public class MainForm : Form
                     {
                         var graph = new ErdosRenyiProbabilityGenerator(testSizes[i], prob).Generate();
                         edgeSum += graph.EdgesCount;
-                        klSum   += new KernighanLinGraphPartitionGenerator(2).Generate(graph).CutSize;
-                        fmSum   += new FiducciaMattheysesGraphPartitionGenerator().Generate(graph).CutSize;
+                        klSum   += new KernighanLinGraphPartitionGenerator(2).Generate(graph).CrossEdgesCount;
+                        fmSum   += new FiducciaMattheysesGraphPartitionGenerator().Generate(graph).CrossEdgesCount;
                     }
                     klCuts[i]     = (int)(klSum    / runs);
                     fmCuts[i]     = (int)(fmSum    / runs);

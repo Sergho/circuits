@@ -1,11 +1,10 @@
-public class KernighanLinGraphPartitionGenerator : GraphPartitionGenerator
+public class KernighanLinGraphPartitionGenerator : IGraphPartitionGenerator
 {
     private readonly int partsCount;
     private readonly Random random;
     private readonly Dictionary<Edge, int> cachedGains;
 
     public int LastIterationsCount { get; private set; }
-    public int IterationsCount => LastIterationsCount;
 
     public KernighanLinGraphPartitionGenerator(int partsCount)
     {
@@ -16,7 +15,7 @@ public class KernighanLinGraphPartitionGenerator : GraphPartitionGenerator
         LastIterationsCount = 0;
     }
 
-    public GraphPartition Generate(Graph graph)
+    public IGraphPartition Generate(IGraph graph)
     {
         var partition = CreatePartition(graph);
 
@@ -37,12 +36,12 @@ public class KernighanLinGraphPartitionGenerator : GraphPartitionGenerator
         return partition;
     }
 
-    private GraphPartition CreatePartition(Graph graph)
+    private IGraphPartition CreatePartition(IGraph graph)
     {
         return new GraphPartition(graph, partsCount);
     }
 
-    private GraphPartition InitPartition(GraphPartition partition)
+    private IGraphPartition InitPartition(IGraphPartition partition)
     {
         for (int i = 1; i < partition.Graph.VerticesCount; i++)
         {
@@ -59,7 +58,7 @@ public class KernighanLinGraphPartitionGenerator : GraphPartitionGenerator
         return partition;
     }
 
-    private void InitGainsCache(GraphPartition partition)
+    private void InitGainsCache(IGraphPartition partition)
     {
         foreach(var (first, second) in GetAllVertexPairs(partition))
         {
@@ -68,7 +67,7 @@ public class KernighanLinGraphPartitionGenerator : GraphPartitionGenerator
         }
     }
 
-    private IEnumerable<(Vertex, Vertex)> GetAllVertexPairs(GraphPartition partition)
+    private IEnumerable<(IVertex, IVertex)> GetAllVertexPairs(IGraphPartition partition)
     {
         var parts = partition.Parts.ToList();
         for (int firstPart = 0; firstPart < partsCount; firstPart++)
@@ -86,10 +85,10 @@ public class KernighanLinGraphPartitionGenerator : GraphPartitionGenerator
         }
     }
 
-    private (Vertex, Vertex)? GetMaxGainPair()
+    private (IVertex, IVertex)? GetMaxGainPair()
     {
         int maxGain = 0;
-        (Vertex, Vertex)? maxGainPair = null;
+        (IVertex, IVertex)? maxGainPair = null;
         foreach(var (edge, gain) in cachedGains)
         {
             if(gain > maxGain)
@@ -102,7 +101,7 @@ public class KernighanLinGraphPartitionGenerator : GraphPartitionGenerator
         return maxGainPair;
     }
 
-    private void SwapVertices(GraphPartition partition, Vertex first, Vertex second)
+    private void SwapVertices(IGraphPartition partition, IVertex first, IVertex second)
     {
         partition.SwapVertices(first, second);
 
@@ -110,7 +109,7 @@ public class KernighanLinGraphPartitionGenerator : GraphPartitionGenerator
         UpdateGainsForVertex(partition, second);
     }
 
-    private void UpdateGainsForVertex(GraphPartition partition, Vertex vertex)
+    private void UpdateGainsForVertex(IGraphPartition partition, IVertex vertex)
     {
         foreach(var otherVertex in partition.Graph.Vertices)
         {
