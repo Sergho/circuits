@@ -30,20 +30,24 @@ public class GraphCanvas : Control
         if (graph == null || partition == null || Width < 10 || Height < 10) return;
 
         var parts = partition.Parts.ToArray();
-        var colA = parts[0].Vertices.OrderBy(v => v.Index).ToList();
-        var colB = parts[1].Vertices.OrderBy(v => v.Index).ToList();
+        var vertices = parts[0].Vertices.OrderBy(v => v.Index)
+            .Concat(parts[1].Vertices.OrderBy(v => v.Index))
+            .ToList();
 
-        PlaceColumn(colA, Width * 0.25f);
-        PlaceColumn(colB, Width * 0.75f);
-    }
+        int n = vertices.Count;
+        if (n == 0) return;
 
-    private void PlaceColumn(List<IVertex> verts, float x)
-    {
-        if (verts.Count == 0) return;
-        float margin = 30f;
-        float step = (Height - 2 * margin) / Math.Max(verts.Count, 1);
-        for (int i = 0; i < verts.Count; i++)
-            positions[verts[i]] = new PointF(x, margin + step * i + step / 2f);
+        float cx = Width / 2f;
+        float cy = Height / 2f;
+        float r = Math.Min(Width, Height) / 2f - R - 20f;
+
+        for (int i = 0; i < n; i++)
+        {
+            double angle = 2 * Math.PI * i / n - Math.PI / 2;
+            positions[vertices[i]] = new PointF(
+                cx + r * (float)Math.Cos(angle),
+                cy + r * (float)Math.Sin(angle));
+        }
     }
 
     protected override void OnSizeChanged(EventArgs e)

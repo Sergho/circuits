@@ -240,7 +240,7 @@ public class MainForm : Form
             currentPartition = partition;
 
             cutSizeLabel.Text  = $"Межсоединений: {partition.CrossEdgesCount}";
-            timeLabel.Text     = $"Время: {sw.ElapsedMilliseconds} мс";
+            timeLabel.Text     = $"Время: {sw.Elapsed.TotalMilliseconds:F2} мс";
             iterLabel.Text     = $"Итераций: {iters}";
             var parts = partition.Parts.ToArray();
             partSizesLabel.Text = $"Часть A: {parts[0].VerticesCount}   |   Часть B: {parts[1].VerticesCount}";
