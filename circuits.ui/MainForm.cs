@@ -127,7 +127,7 @@ public class MainForm : Form
         generatorTypeCombo = new ComboBox { Left = 8, Top = 40, Width = 228, DropDownStyle = ComboBoxStyle.DropDownList };
         generatorTypeCombo.Items.AddRange(new object[]
         {
-            "Эрдёша–Реньи", "Регулярная решётка", "Двудольный граф", "Цепочка", "Клика"
+            "Эрдёша–Реньи", "Регулярная решётка", "Двудольный граф", "Цепочка", "Клика", "Фишер–Йетс"
         });
         generatorTypeCombo.SelectedIndex = 0;
         generatorTypeCombo.SelectedIndexChanged += OnGeneratorChanged;
@@ -182,10 +182,10 @@ public class MainForm : Form
                 param2Label.Visible = true; param2UpDown.Visible = true;
                 break;
             case 2:
-                param1Label.Text = "Левая доля:";
-                param1UpDown.DecimalPlaces = 0; param1UpDown.Increment = 1; param1UpDown.Minimum = 1; param1UpDown.Maximum = 50000; param1UpDown.Value = 15;
-                param2Label.Text = "Правая доля:";
-                param2UpDown.DecimalPlaces = 0; param2UpDown.Increment = 1; param2UpDown.Minimum = 1; param2UpDown.Maximum = 50000; param2UpDown.Value = 15;
+                param1Label.Text = "Вершин:";
+                param1UpDown.DecimalPlaces = 0; param1UpDown.Increment = 1; param1UpDown.Minimum = 2; param1UpDown.Maximum = 100000; param1UpDown.Value = 30;
+                param2Label.Text = "Плотность рёбер:";
+                param2UpDown.DecimalPlaces = 2; param2UpDown.Increment = 0.05m; param2UpDown.Minimum = 0; param2UpDown.Maximum = 1; param2UpDown.Value = 0.30m;
                 param2Label.Visible = true; param2UpDown.Visible = true;
                 break;
             case 3:
@@ -198,21 +198,52 @@ public class MainForm : Form
                 param1UpDown.DecimalPlaces = 0; param1UpDown.Increment = 1; param1UpDown.Minimum = 2; param1UpDown.Maximum = 10000; param1UpDown.Value = 20;
                 param2Label.Visible = false; param2UpDown.Visible = false;
                 break;
+            case 5:
+                param1Label.Text = "Вершин:";
+                param1UpDown.DecimalPlaces = 0; param1UpDown.Increment = 1; param1UpDown.Minimum = 2; param1UpDown.Maximum = 5000; param1UpDown.Value = 30;
+                param2Label.Text = "Плотность рёбер:";
+                param2UpDown.DecimalPlaces = 2; param2UpDown.Increment = 0.05m; param2UpDown.Minimum = 0; param2UpDown.Maximum = 1; param2UpDown.Value = 0.15m;
+                param2Label.Visible = true; param2UpDown.Visible = true;
+                break;
         }
     }
 
     private IGraph BuildGraph()
     {
-        return generatorTypeCombo.SelectedIndex switch
+        int n = (int)param1UpDown.Value;
+        double p = (double)param2UpDown.Value;
+        switch (generatorTypeCombo.SelectedIndex)
         {
-            0 => new ErdosRenyiProbabilityGenerator((int)param1UpDown.Value, (double)param2UpDown.Value).Generate(),
-            1 => new RegularGridGraphGenerator((int)param1UpDown.Value, (int)param2UpDown.Value).Generate(),
-            2 => new BipartiteGraphGenerator((int)param1UpDown.Value, (int)param2UpDown.Value,
-                     (int)param1UpDown.Value * (int)param2UpDown.Value / 2).Generate(),
-            3 => new ChainGraphGenerator((int)param1UpDown.Value).Generate(),
-            4 => new CliqueGraphGenerator((int)param1UpDown.Value).Generate(),
-            _ => throw new InvalidOperationException()
-        };
+            case 0: return new ErdosRenyiProbabilityGenerator(n, p).Generate();
+            case 1: return new RegularGridGraphGenerator(n, (int)param2UpDown.Value).Generate();
+            case 2:
+                int left = n / 2, right = n - left;
+                return new BipartiteGraphGenerator(left, right, (int)Math.Round(p * left * right)).Generate();
+            case 3: return new ChainGraphGenerator(n).Generate();
+            case 4: return new CliqueGraphGenerator(n).Generate();
+            case 5: return new FisherYatesGraphGenerator(n, (int)Math.Round(p * n * (n - 1) / 2)).Generate();
+            default: throw new InvalidOperationException();
+        }
+    }
+
+    private IGraph BuildGraphForComparison(int n)
+    {
+        double p = (double)param2UpDown.Value;
+        switch (generatorTypeCombo.SelectedIndex)
+        {
+            case 0: return new ErdosRenyiProbabilityGenerator(n, p).Generate();
+            case 1:
+                int rows = Math.Max(1, (int)Math.Round(Math.Sqrt(n)));
+                int cols = Math.Max(1, (int)Math.Ceiling((double)n / rows));
+                return new RegularGridGraphGenerator(rows, cols).Generate();
+            case 2:
+                int left = n / 2, right = n - left;
+                return new BipartiteGraphGenerator(left, right, (int)Math.Round(p * left * right)).Generate();
+            case 3: return new ChainGraphGenerator(n).Generate();
+            case 4: return new CliqueGraphGenerator(n).Generate();
+            case 5: return new FisherYatesGraphGenerator(n, (int)Math.Round(p * n * (n - 1) / 2)).Generate();
+            default: throw new InvalidOperationException();
+        }
     }
 
     private void OnRun(object? sender, EventArgs e)
@@ -275,7 +306,6 @@ public class MainForm : Form
         try
         {
             int[] testSizes = [10, 25, 50, 100, 175, 300, 500];
-            double prob = generatorTypeCombo.SelectedIndex == 0 ? (double)param2UpDown.Value : 0.15;
             const int runs = 2;
 
             var klCuts    = new int[testSizes.Length];
@@ -289,7 +319,7 @@ public class MainForm : Form
                     long klSum = 0, fmSum = 0, edgeSum = 0;
                     for (int r = 0; r < runs; r++)
                     {
-                        var graph = new ErdosRenyiProbabilityGenerator(testSizes[i], prob).Generate();
+                        var graph = BuildGraphForComparison(testSizes[i]);
                         edgeSum += graph.EdgesCount;
                         klSum   += new KernighanLinGraphPartitionGenerator(2).Generate(graph).CrossEdgesCount;
                         fmSum   += new FiducciaMattheysesGraphPartitionGenerator().Generate(graph).CrossEdgesCount;
