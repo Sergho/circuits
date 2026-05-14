@@ -133,7 +133,7 @@ public class MainForm : Form
         generatorTypeCombo.SelectedIndexChanged += OnGeneratorChanged;
 
         param1Label = new Label { Text = "Вершин:", Left = 8, Top = 72, Width = 120, AutoSize = false };
-        param1UpDown = new NumericUpDown { Left = 8, Top = 90, Width = 110, Minimum = 2, Maximum = 1000, Value = 30 };
+        param1UpDown = new NumericUpDown { Left = 8, Top = 90, Width = 110, Minimum = 2, Maximum = 100000, Value = 30 };
 
         param2Label = new Label { Text = "Вероятность ребра:", Left = 8, Top = 120, Width = 228, AutoSize = false };
         param2UpDown = new NumericUpDown
@@ -169,29 +169,33 @@ public class MainForm : Form
         {
             case 0:
                 param1Label.Text = "Вершин:";
-                param1UpDown.DecimalPlaces = 0; param1UpDown.Increment = 1; param1UpDown.Minimum = 2; param1UpDown.Maximum = 1000; param1UpDown.Value = 30;
+                param1UpDown.DecimalPlaces = 0; param1UpDown.Increment = 1; param1UpDown.Minimum = 2; param1UpDown.Maximum = 100000; param1UpDown.Value = 30;
                 param2Label.Text = "Вероятность ребра:";
                 param2UpDown.DecimalPlaces = 2; param2UpDown.Increment = 0.05m; param2UpDown.Minimum = 0; param2UpDown.Maximum = 1; param2UpDown.Value = 0.15m;
                 param2Label.Visible = true; param2UpDown.Visible = true;
                 break;
             case 1:
                 param1Label.Text = "Строк:";
-                param1UpDown.DecimalPlaces = 0; param1UpDown.Increment = 1; param1UpDown.Minimum = 1; param1UpDown.Maximum = 200; param1UpDown.Value = 5;
+                param1UpDown.DecimalPlaces = 0; param1UpDown.Increment = 1; param1UpDown.Minimum = 1; param1UpDown.Maximum = 1000; param1UpDown.Value = 5;
                 param2Label.Text = "Столбцов:";
-                param2UpDown.DecimalPlaces = 0; param2UpDown.Increment = 1; param2UpDown.Minimum = 1; param2UpDown.Maximum = 200; param2UpDown.Value = 10;
+                param2UpDown.DecimalPlaces = 0; param2UpDown.Increment = 1; param2UpDown.Minimum = 1; param2UpDown.Maximum = 1000; param2UpDown.Value = 10;
                 param2Label.Visible = true; param2UpDown.Visible = true;
                 break;
             case 2:
                 param1Label.Text = "Левая доля:";
-                param1UpDown.DecimalPlaces = 0; param1UpDown.Increment = 1; param1UpDown.Minimum = 1; param1UpDown.Maximum = 500; param1UpDown.Value = 15;
+                param1UpDown.DecimalPlaces = 0; param1UpDown.Increment = 1; param1UpDown.Minimum = 1; param1UpDown.Maximum = 50000; param1UpDown.Value = 15;
                 param2Label.Text = "Правая доля:";
-                param2UpDown.DecimalPlaces = 0; param2UpDown.Increment = 1; param2UpDown.Minimum = 1; param2UpDown.Maximum = 500; param2UpDown.Value = 15;
+                param2UpDown.DecimalPlaces = 0; param2UpDown.Increment = 1; param2UpDown.Minimum = 1; param2UpDown.Maximum = 50000; param2UpDown.Value = 15;
                 param2Label.Visible = true; param2UpDown.Visible = true;
                 break;
             case 3:
+                param1Label.Text = "Вершин:";
+                param1UpDown.DecimalPlaces = 0; param1UpDown.Increment = 1; param1UpDown.Minimum = 2; param1UpDown.Maximum = 100000; param1UpDown.Value = 20;
+                param2Label.Visible = false; param2UpDown.Visible = false;
+                break;
             case 4:
                 param1Label.Text = "Вершин:";
-                param1UpDown.DecimalPlaces = 0; param1UpDown.Increment = 1; param1UpDown.Minimum = 2; param1UpDown.Maximum = 1000; param1UpDown.Value = 20;
+                param1UpDown.DecimalPlaces = 0; param1UpDown.Increment = 1; param1UpDown.Minimum = 2; param1UpDown.Maximum = 10000; param1UpDown.Value = 20;
                 param2Label.Visible = false; param2UpDown.Visible = false;
                 break;
         }
