@@ -87,10 +87,21 @@ public class GraphCanvas : Control
         g.DrawString(text, font, Brushes.Gray, (Width - sz.Width) / 2f, (Height - sz.Height) / 2f);
     }
 
+    private float GraphDensity()
+    {
+        int n = graph!.VerticesCount;
+        if (n < 2) return 0f;
+        return (float)graph.EdgesCount / (n * (n - 1) / 2f);
+    }
+
     private void DrawEdges(Graphics g)
     {
-        using var cutPen = new Pen(ColorCutEdge, 1.8f);
-        using var intPen = new Pen(ColorInternalEdge, 1f);
+        float density = GraphDensity();
+        float intWidth = 0.5f + density * 3.0f;
+        float cutWidth = intWidth + 1.0f;
+
+        using var cutPen = new Pen(ColorCutEdge, cutWidth);
+        using var intPen = new Pen(ColorInternalEdge, intWidth);
 
         foreach (var edge in graph!.Edges)
         {
