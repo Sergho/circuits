@@ -7,6 +7,8 @@ public class DetailedComparisonForm : Form
     private ComboBox generatorCombo = null!;
     private NumericUpDown param2UpDown = null!;
     private Label param2Label = null!;
+    private RadioButton edgeProbRadio = null!;
+    private RadioButton edgeCountRadio = null!;
     private TextBox sizesTextBox = null!;
     private AlgorithmMetricChart iterChart = null!;
     private AlgorithmMetricChart timeChart = null!;
@@ -143,16 +145,59 @@ public class DetailedComparisonForm : Form
         };
         flow.Controls.Add(param2UpDown);
 
+        edgeProbRadio  = new RadioButton { Text = "вер.", Width = 54, Height = 26, TextAlign = ContentAlignment.MiddleLeft };
+        edgeCountRadio = new RadioButton { Text = "рёбер", Width = 60, Height = 26, TextAlign = ContentAlignment.MiddleLeft, Checked = false };
+        edgeProbRadio.Checked = true;
+        edgeProbRadio.CheckedChanged  += OnEdgeModeChanged;
+        edgeCountRadio.CheckedChanged += OnEdgeModeChanged;
+        flow.Controls.Add(edgeProbRadio);
+        flow.Controls.Add(edgeCountRadio);
+
         return flow;
     }
 
     private void OnGeneratorComboChanged(object? sender, EventArgs e)
     {
         int idx = generatorCombo.SelectedIndex;
-        bool showParam2 = idx == 0 || idx == 2 || idx == 5;
-        param2Label.Visible = showParam2;
-        param2UpDown.Visible = showParam2;
-        param2Label.Text = idx == 2 ? "  плотность =" : "  p =";
+        bool hasDensityParam = idx == 0 || idx == 2 || idx == 5;
+        param2Label.Visible  = hasDensityParam;
+        param2UpDown.Visible = hasDensityParam;
+        edgeProbRadio.Visible  = hasDensityParam;
+        edgeCountRadio.Visible = hasDensityParam;
+
+        // Reset to probability mode when generator changes
+        edgeProbRadio.Checked = true;
+        if (hasDensityParam)
+        {
+            param2UpDown.DecimalPlaces = 2; param2UpDown.Increment = 0.05m;
+            param2UpDown.Minimum = 0.01m;  param2UpDown.Maximum = 1m;
+            param2UpDown.Value   = idx == 2 ? 0.30m : 0.15m;
+            param2Label.Text = idx == 2 ? "  плотность =" : "  p =";
+        }
+    }
+
+    private void OnEdgeModeChanged(object? sender, EventArgs e)
+    {
+        if (edgeCountRadio.Checked)
+        {
+            // Convert current density to a rough count using n=100 as reference
+            int refMax = generatorCombo.SelectedIndex == 2 ? 2500 : 4950; // 50*50 or 100*99/2
+            int defaultCount = Math.Max(1, (int)Math.Round((double)param2UpDown.Value * refMax));
+            param2UpDown.DecimalPlaces = 0;
+            param2UpDown.Increment = 10;
+            param2UpDown.Minimum = 0;
+            param2UpDown.Maximum = 50_000_000;
+            param2UpDown.Value = defaultCount;
+            param2Label.Text = "  рёбер =";
+        }
+        else
+        {
+            int idx = generatorCombo.SelectedIndex;
+            param2UpDown.DecimalPlaces = 2; param2UpDown.Increment = 0.05m;
+            param2UpDown.Minimum = 0.01m;  param2UpDown.Maximum = 1m;
+            param2UpDown.Value = idx == 2 ? 0.30m : 0.15m;
+            param2Label.Text = idx == 2 ? "  плотность =" : "  p =";
+        }
     }
 
     private Panel BuildSizesPanel()
@@ -244,21 +289,29 @@ public class DetailedComparisonForm : Form
             .ToArray();
     }
 
-    private IGraph BuildGraphForSize(int n, int genIdx, double param2)
+    private IGraph BuildGraphForSize(int n, int genIdx, double param2, bool exactCount)
     {
         switch (genIdx)
         {
-            case 0: return new ErdosRenyiProbabilityGenerator(n, param2).Generate();
+            case 0:
+                if (exactCount)
+                    return new FisherYatesGraphGenerator(n, Math.Min((int)param2, n * (n - 1) / 2)).Generate();
+                return new ErdosRenyiProbabilityGenerator(n, param2).Generate();
             case 1:
                 int rows = Math.Max(1, (int)Math.Round(Math.Sqrt(n)));
                 int cols = Math.Max(1, (int)Math.Ceiling((double)n / rows));
                 return new RegularGridGraphGenerator(rows, cols).Generate();
             case 2:
                 int left = n / 2, right = n - left;
+                if (exactCount)
+                    return new BipartiteGraphGenerator(left, right, Math.Min((int)param2, left * right)).Generate();
                 return new BipartiteGraphGenerator(left, right, (int)Math.Round(param2 * left * right)).Generate();
             case 3: return new ChainGraphGenerator(n).Generate();
             case 4: return new CliqueGraphGenerator(n).Generate();
-            case 5: return new FisherYatesGraphGenerator(n, (int)Math.Round(param2 * n * (n - 1) / 2)).Generate();
+            case 5:
+                if (exactCount)
+                    return new FisherYatesGraphGenerator(n, Math.Min((int)param2, n * (n - 1) / 2)).Generate();
+                return new FisherYatesGraphGenerator(n, (int)Math.Round(param2 * n * (n - 1) / 2)).Generate();
             default: throw new InvalidOperationException();
         }
     }
@@ -282,6 +335,7 @@ public class DetailedComparisonForm : Form
 
         int genIdx = generatorCombo.SelectedIndex;
         double param2 = (double)param2UpDown.Value;
+        bool exactCount = edgeCountRadio.Checked;
 
         var actualSizes = new int[sizes.Length];
         var klTimes  = new double[sizes.Length];
@@ -301,7 +355,7 @@ public class DetailedComparisonForm : Form
                 for (int r = 0; r < runs; r++)
                 {
                     IGraph graph;
-                    try { graph = BuildGraphForSize(n, genIdx, param2); }
+                    try { graph = BuildGraphForSize(n, genIdx, param2, exactCount); }
                     catch (Exception ex)
                     {
                         Invoke(() => MessageBox.Show(ex.Message, "Ошибка генератора", MessageBoxButtons.OK, MessageBoxIcon.Warning));

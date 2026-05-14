@@ -8,6 +8,8 @@ public class MainForm : Form
     private NumericUpDown param2UpDown = null!;
     private Label param1Label = null!;
     private Label param2Label = null!;
+    private RadioButton edgeProbRadio = null!;
+    private RadioButton edgeCountRadio = null!;
     private RadioButton klRadio = null!;
     private RadioButton fmRadio = null!;
     private Button runButton = null!;
@@ -121,7 +123,7 @@ public class MainForm : Form
 
     private GroupBox BuildGraphGroup()
     {
-        var g = new GroupBox { Text = "Параметры графа", Width = 246, Height = 190, Margin = new Padding(0, 0, 0, 4) };
+        var g = new GroupBox { Text = "Параметры графа", Width = 246, Height = 218, Margin = new Padding(0, 0, 0, 4) };
 
         var genLabel = new Label { Text = "Тип генератора:", Left = 8, Top = 22, Width = 228, AutoSize = false };
         generatorTypeCombo = new ComboBox { Left = 8, Top = 40, Width = 228, DropDownStyle = ComboBoxStyle.DropDownList };
@@ -134,6 +136,7 @@ public class MainForm : Form
 
         param1Label = new Label { Text = "Вершин:", Left = 8, Top = 72, Width = 120, AutoSize = false };
         param1UpDown = new NumericUpDown { Left = 8, Top = 90, Width = 110, Minimum = 2, Maximum = 100000, Value = 30 };
+        param1UpDown.ValueChanged += OnParam1Changed;
 
         param2Label = new Label { Text = "Вероятность ребра:", Left = 8, Top = 120, Width = 228, AutoSize = false };
         param2UpDown = new NumericUpDown
@@ -142,12 +145,19 @@ public class MainForm : Form
             Minimum = 0, Maximum = 1, DecimalPlaces = 2, Increment = 0.05m, Value = 0.15m,
         };
 
+        edgeProbRadio  = new RadioButton { Text = "вероятность", Left = 8,   Top = 164, Width = 108, Height = 20, Checked = true };
+        edgeCountRadio = new RadioButton { Text = "число рёбер", Left = 118, Top = 164, Width = 108, Height = 20 };
+        edgeProbRadio.CheckedChanged  += OnEdgeModeChanged;
+        edgeCountRadio.CheckedChanged += OnEdgeModeChanged;
+
         g.Controls.Add(genLabel);
         g.Controls.Add(generatorTypeCombo);
         g.Controls.Add(param1Label);
         g.Controls.Add(param1UpDown);
         g.Controls.Add(param2Label);
         g.Controls.Add(param2UpDown);
+        g.Controls.Add(edgeProbRadio);
+        g.Controls.Add(edgeCountRadio);
         return g;
     }
 
@@ -165,6 +175,9 @@ public class MainForm : Form
 
     private void OnGeneratorChanged(object? sender, EventArgs e)
     {
+        // Always reset to probability mode on generator switch
+        edgeProbRadio.Checked = true;
+
         switch (generatorTypeCombo.SelectedIndex)
         {
             case 0:
@@ -206,29 +219,109 @@ public class MainForm : Form
                 param2Label.Visible = true; param2UpDown.Visible = true;
                 break;
         }
+
+        bool showModeRadios = IsEdgeModeApplicable();
+        edgeProbRadio.Visible  = showModeRadios;
+        edgeCountRadio.Visible = showModeRadios;
+    }
+
+    private bool IsEdgeModeApplicable()
+    {
+        int idx = generatorTypeCombo.SelectedIndex;
+        return idx == 0 || idx == 2 || idx == 5;
+    }
+
+    private int GetMaxEdges()
+    {
+        int n = (int)param1UpDown.Value;
+        return generatorTypeCombo.SelectedIndex switch
+        {
+            0 => n * (n - 1) / 2,
+            2 => (n / 2) * (n - n / 2),
+            5 => n * (n - 1) / 2,
+            _ => 0
+        };
+    }
+
+    private double GetEffectiveDensity()
+    {
+        if (!IsEdgeModeApplicable()) return (double)param2UpDown.Value;
+        if (edgeCountRadio.Checked)
+        {
+            int maxEdges = GetMaxEdges();
+            return maxEdges > 0 ? (double)param2UpDown.Value / maxEdges : 0;
+        }
+        return (double)param2UpDown.Value;
+    }
+
+    private void OnEdgeModeChanged(object? sender, EventArgs e)
+    {
+        if (!IsEdgeModeApplicable()) return;
+
+        if (edgeCountRadio.Checked)
+        {
+            int maxEdges = GetMaxEdges();
+            int currentCount = (int)Math.Round((double)param2UpDown.Value * maxEdges);
+            param2UpDown.DecimalPlaces = 0;
+            param2UpDown.Increment = 1;
+            param2UpDown.Minimum = 0;
+            param2UpDown.Maximum = maxEdges;
+            param2UpDown.Value = Math.Min(currentCount, maxEdges);
+            param2Label.Text = "Рёбер:";
+        }
+        else
+        {
+            int maxEdges = GetMaxEdges();
+            decimal prob = maxEdges > 0 ? Math.Round((decimal)param2UpDown.Value / maxEdges, 2) : 0.15m;
+            param2UpDown.DecimalPlaces = 2;
+            param2UpDown.Increment = 0.05m;
+            param2UpDown.Minimum = 0;
+            param2UpDown.Maximum = 1;
+            param2UpDown.Value = Math.Min(Math.Max(prob, 0), 1);
+            param2Label.Text = generatorTypeCombo.SelectedIndex == 0 ? "Вероятность ребра:" : "Плотность рёбер:";
+        }
+    }
+
+    private void OnParam1Changed(object? sender, EventArgs e)
+    {
+        if (edgeCountRadio.Checked && IsEdgeModeApplicable())
+        {
+            int newMax = GetMaxEdges();
+            decimal currentVal = param2UpDown.Value;
+            param2UpDown.Maximum = newMax;
+            if (currentVal > newMax) param2UpDown.Value = newMax;
+        }
     }
 
     private IGraph BuildGraph()
     {
         int n = (int)param1UpDown.Value;
         double p = (double)param2UpDown.Value;
+        bool exactCount = edgeCountRadio.Checked;
         switch (generatorTypeCombo.SelectedIndex)
         {
-            case 0: return new ErdosRenyiProbabilityGenerator(n, p).Generate();
-            case 1: return new RegularGridGraphGenerator(n, (int)param2UpDown.Value).Generate();
+            case 0:
+                if (exactCount) return new FisherYatesGraphGenerator(n, (int)p).Generate();
+                return new ErdosRenyiProbabilityGenerator(n, p).Generate();
+            case 1:
+                return new RegularGridGraphGenerator(n, (int)param2UpDown.Value).Generate();
             case 2:
                 int left = n / 2, right = n - left;
-                return new BipartiteGraphGenerator(left, right, (int)Math.Round(p * left * right)).Generate();
+                int m2 = exactCount ? (int)p : (int)Math.Round(p * left * right);
+                return new BipartiteGraphGenerator(left, right, m2).Generate();
             case 3: return new ChainGraphGenerator(n).Generate();
             case 4: return new CliqueGraphGenerator(n).Generate();
-            case 5: return new FisherYatesGraphGenerator(n, (int)Math.Round(p * n * (n - 1) / 2)).Generate();
+            case 5:
+                int m5 = exactCount ? (int)p : (int)Math.Round(p * n * (n - 1) / 2);
+                return new FisherYatesGraphGenerator(n, m5).Generate();
             default: throw new InvalidOperationException();
         }
     }
 
     private IGraph BuildGraphForComparison(int n)
     {
-        double p = (double)param2UpDown.Value;
+        // Comparison iterates over multiple sizes, so always use density (convert count→density if needed)
+        double p = GetEffectiveDensity();
         switch (generatorTypeCombo.SelectedIndex)
         {
             case 0: return new ErdosRenyiProbabilityGenerator(n, p).Generate();
