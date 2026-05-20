@@ -10,6 +10,14 @@ class KernighanLinGraphPartitionGenerator {
     + KernighanLinGraphPartitionGenerator(partsCount: int)
 }
 
+class FiducciaMattheysesGraphPartitionGenerator {
+    - iterationsCount: int
+    - random: Random
+
+    + FiducciaMattheysesGraphPartitionGenerator()
+}
+
 KernighanLinGraphPartitionGenerator ..|> IGraphPartitionGenerator
+FiducciaMattheysesGraphPartitionGenerator ..|> IGraphPartitionGenerator
 
 @enduml
