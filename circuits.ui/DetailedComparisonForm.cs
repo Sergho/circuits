@@ -14,6 +14,7 @@ public class DetailedComparisonForm : Form
     private AlgorithmMetricChart timeChart = null!;
     private ComparisonChart cutsChart = null!;
     private TabControl tabControl = null!;
+    private CancellationTokenSource _cts = new();
 
     public DetailedComparisonForm()
     {
@@ -22,6 +23,19 @@ public class DetailedComparisonForm : Form
         MinimumSize = new Size(720, 450);
         StartPosition = FormStartPosition.CenterParent;
         BuildUI();
+    }
+
+    protected override void OnFormClosing(FormClosingEventArgs e)
+    {
+        _cts.Cancel();
+        base.OnFormClosing(e);
+    }
+
+    private void SafeInvoke(Action action)
+    {
+        try { if (!IsDisposed && IsHandleCreated) Invoke(action); }
+        catch (ObjectDisposedException) { }
+        catch (InvalidOperationException) { }
     }
 
     private void BuildUI()
@@ -331,6 +345,9 @@ public class DetailedComparisonForm : Form
             return;
         }
 
+        _cts = new CancellationTokenSource();
+        var token = _cts.Token;
+
         runButton.Enabled = false;
         grid.Rows.Clear();
         statusLabel.Text = "Выполняется...";
@@ -356,6 +373,7 @@ public class DetailedComparisonForm : Form
         {
             for (int si = 0; si < sizes.Length; si++)
             {
+                if (token.IsCancellationRequested) break;
                 int n = sizes[si];
                 double klMs = 0, fmMs = 0;
                 int klCut = 0, fmCut = 0, klMoves = 0, fmMoves = 0;
@@ -367,7 +385,7 @@ public class DetailedComparisonForm : Form
                     try { graph = BuildGraphForSize(n, genIdx, param2, exactCount); }
                     catch (Exception ex)
                     {
-                        Invoke(() => MessageBox.Show(ex.Message, "Ошибка генератора", MessageBoxButtons.OK, MessageBoxIcon.Warning));
+                        SafeInvoke(() => MessageBox.Show(ex.Message, "Ошибка генератора", MessageBoxButtons.OK, MessageBoxIcon.Warning));
                         continue;
                     }
 
@@ -390,7 +408,7 @@ public class DetailedComparisonForm : Form
                     fmCut   += fmPart.CrossEdgesCount;
                     fmMoves += fmGen.LastIterationsCount;
 
-                    Invoke(() => progressBar.Value++);
+                    SafeInvoke(() => progressBar.Value++);
                 }
 
                 double avgKlCut   = (double)klCut   / runs;
@@ -410,7 +428,7 @@ public class DetailedComparisonForm : Form
                 fmCuts[si]     = (int)Math.Round(avgFmCut);
                 edgeCounts[si] = edges;
 
-                Invoke(() =>
+                SafeInvoke(() =>
                 {
                     int row = grid.Rows.Add(
                         actualN, edges,
@@ -428,7 +446,7 @@ public class DetailedComparisonForm : Form
                 });
             }
 
-            Invoke(() =>
+            SafeInvoke(() =>
             {
                 iterChart.SetData(actualSizes, klIters, fmIters, "Итерации (количество ходов)");
                 timeChart.SetData(actualSizes, klTimes, fmTimes, "Время выполнения, мс");
