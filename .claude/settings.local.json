@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Recurse)",
+      "Bash(Select-Object FullName, PSIsContainer)",
+      "Bash(Sort-Object FullName)",
+      "Bash(Format-Table -AutoSize)",
+      "WebFetch(domain:api.github.com)",
+      "Bash(Get-ChildItem *)",
+      "PowerShell(head *)",
+      "Bash(git fetch *)",
+      "Bash(git ls-tree *)",
+      "Bash(git merge *)",
+      "Bash(git add *)",
+      "Bash(dotnet build *)",
+      "Bash(git commit -m ' *)",
+      "Bash(pip install *)",
+      "Bash(python patch_slides.py)"
+    ]
+  }
+}

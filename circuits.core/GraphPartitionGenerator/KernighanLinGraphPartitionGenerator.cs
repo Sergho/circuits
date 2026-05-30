@@ -3,7 +3,7 @@ public class KernighanLinGraphPartitionGenerator : IGraphPartitionGenerator
     private readonly int partsCount;
     private readonly Random random;
     private readonly Dictionary<Edge, int> cachedGains;
-    
+
     public int LastIterationsCount { get; private set; }
 
     public KernighanLinGraphPartitionGenerator(int partsCount)
@@ -32,7 +32,6 @@ public class KernighanLinGraphPartitionGenerator : IGraphPartitionGenerator
             SwapVertices(partition, firstVertex, secondVertex);
             LastIterationsCount++;
         }
-        
 
         return partition;
     }

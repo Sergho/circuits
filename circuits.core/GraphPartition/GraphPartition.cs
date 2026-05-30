@@ -14,7 +14,7 @@ public class GraphPartition : IGraphPartition
         foreach(var vertex in Graph.Vertices)
         {
             totalExternalVertices += GetExternalVerticesCount(vertex);
-        }   
+        }
 
         // Если не поделить на 2, то каждое ребро учтется два раза
         return totalExternalVertices / 2;
@@ -51,7 +51,7 @@ public class GraphPartition : IGraphPartition
         {
             int partSize = verticesPerPart + (partIndex < extraVerticesCount ? 1 : 0);
             var part = new GraphPart(Graph);
-            
+
             for(int vertexIndex = currentIndex; vertexIndex < currentIndex + partSize; vertexIndex++)
             {
                 part.AssignVertex(vertices[vertexIndex]);
@@ -89,6 +89,29 @@ public class GraphPartition : IGraphPartition
         return externalCount - internalCount - (graphHasEdge ? 2 : 0);
     }
 
+    public int GetPartIndex(IVertex vertex)
+    {
+        var part = GetPart(vertex);
+        for (int i = 0; i < parts.Length; i++)
+            if (parts[i] == part) return i;
+        throw new InvalidOperationException("Vertex not found in any partition part");
+    }
+
+    public void MoveVertex(IVertex vertex, int toPartIndex)
+    {
+        if (!Graph.HasVertex(vertex)) return;
+        var fromPart = GetPart(vertex);
+        if (fromPart == parts[toPartIndex]) return;
+        fromPart.RemoveVertex(vertex);
+        parts[toPartIndex].AssignVertex(vertex);
+        vertexToPart[vertex] = parts[toPartIndex];
+    }
+
+    public IGraphPart GetPart(IVertex vertex)
+    {
+        return vertexToPart[vertex];
+    }
+
     private int GetInternalVerticesCount(IVertex firstVertex)
     {
         var part = GetPart(firstVertex);
@@ -111,10 +134,5 @@ public class GraphPartition : IGraphPartition
         }
 
         return counter;
-    }
-
-    public IGraphPart GetPart(IVertex vertex)
-    {
-        return vertexToPart[vertex];
     }
 }

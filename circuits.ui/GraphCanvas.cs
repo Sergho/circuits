@@ -1,0 +1,159 @@
+public class GraphCanvas : Control
+{
+    private IGraph? graph;
+    private IGraphPartition? partition;
+    private readonly Dictionary<IVertex, PointF> positions = new();
+
+    private static readonly Color ColorPartA = Color.FromArgb(70, 130, 200);
+    private static readonly Color ColorPartB = Color.FromArgb(210, 70, 60);
+    private static readonly Color ColorCutEdge = Color.FromArgb(240, 150, 30);
+    private static readonly Color ColorInternalEdge = Color.FromArgb(200, 200, 200);
+    private const int R = 11;
+
+    public GraphCanvas()
+    {
+        DoubleBuffered = true;
+        BackColor = Color.White;
+    }
+
+    public void SetData(IGraph g, IGraphPartition p)
+    {
+        graph = g;
+        partition = p;
+        ComputeLayout();
+        Invalidate();
+    }
+
+    private void ComputeLayout()
+    {
+        positions.Clear();
+        if (graph == null || partition == null || Width < 10 || Height < 10) return;
+
+        var parts = partition.Parts.ToArray();
+        var vertices = parts[0].Vertices.OrderBy(v => v.Index)
+            .Concat(parts[1].Vertices.OrderBy(v => v.Index))
+            .ToList();
+
+        int n = vertices.Count;
+        if (n == 0) return;
+
+        float cx = Width / 2f;
+        float cy = Height / 2f;
+        float r = Math.Min(Width, Height) / 2f - R - 20f;
+
+        for (int i = 0; i < n; i++)
+        {
+            double angle = 2 * Math.PI * i / n - Math.PI / 2;
+            positions[vertices[i]] = new PointF(
+                cx + r * (float)Math.Cos(angle),
+                cy + r * (float)Math.Sin(angle));
+        }
+    }
+
+    protected override void OnSizeChanged(EventArgs e)
+    {
+        base.OnSizeChanged(e);
+        ComputeLayout();
+        Invalidate();
+    }
+
+    protected override void OnPaint(PaintEventArgs e)
+    {
+        base.OnPaint(e);
+        var g = e.Graphics;
+        g.SmoothingMode = SmoothingMode.AntiAlias;
+
+        if (graph == null || partition == null)
+        {
+            DrawCentered(g, "Нажмите «Запустить» для отображения графа");
+            return;
+        }
+
+        if (graph.VerticesCount > 100)
+        {
+            DrawCentered(g, $"Граф слишком большой для визуализации (n = {graph.VerticesCount} > 100)");
+            return;
+        }
+
+        DrawEdges(g);
+        DrawVertices(g);
+        DrawLegend(g);
+    }
+
+    private void DrawCentered(Graphics g, string text)
+    {
+        using var font = new Font("Segoe UI", 11);
+        var sz = g.MeasureString(text, font);
+        g.DrawString(text, font, Brushes.Gray, (Width - sz.Width) / 2f, (Height - sz.Height) / 2f);
+    }
+
+    private float GraphDensity()
+    {
+        int n = graph!.VerticesCount;
+        if (n < 2) return 0f;
+        return (float)graph.EdgesCount / (n * (n - 1) / 2f);
+    }
+
+    private void DrawEdges(Graphics g)
+    {
+        float density = GraphDensity();
+        float intWidth = 0.5f + density * 3.0f;
+        float cutWidth = intWidth + 1.0f;
+
+        using var cutPen = new Pen(ColorCutEdge, cutWidth);
+        using var intPen = new Pen(ColorInternalEdge, intWidth);
+
+        foreach (var edge in graph!.Edges)
+        {
+            if (!positions.TryGetValue(edge.First, out var p1)) continue;
+            if (!positions.TryGetValue(edge.Second, out var p2)) continue;
+            bool cut = partition!.GetPartIndex(edge.First) != partition.GetPartIndex(edge.Second);
+            g.DrawLine(cut ? cutPen : intPen, p1, p2);
+        }
+    }
+
+    private void DrawVertices(Graphics g)
+    {
+        using var labelFont = new Font("Segoe UI", 7, FontStyle.Bold);
+        foreach (var (vertex, pos) in positions)
+        {
+            int idx = partition!.GetPartIndex(vertex);
+            var fill = idx == 0 ? ColorPartA : ColorPartB;
+            var rect = new RectangleF(pos.X - R, pos.Y - R, R * 2, R * 2);
+            using var brush = new SolidBrush(fill);
+            g.FillEllipse(brush, rect);
+            g.DrawEllipse(Pens.DimGray, rect);
+            string label = vertex.Index.ToString();
+            var ts = g.MeasureString(label, labelFont);
+            g.DrawString(label, labelFont, Brushes.White, pos.X - ts.Width / 2f, pos.Y - ts.Height / 2f);
+        }
+    }
+
+    private void DrawLegend(Graphics g)
+    {
+        int x = 10, y = 10, box = 13, lh = 20;
+        using var font = new Font("Segoe UI", 8);
+
+        void Item(Color color, string text, bool line)
+        {
+            if (line)
+            {
+                using var pen = new Pen(color, 2);
+                g.DrawLine(pen, x, y + lh / 2, x + box, y + lh / 2);
+            }
+            else
+            {
+                using var br = new SolidBrush(color);
+                g.FillRectangle(br, x, y + (lh - box) / 2, box, box);
+                g.DrawRectangle(Pens.DimGray, x, y + (lh - box) / 2, box, box);
+            }
+            g.DrawString(text, font, Brushes.Black, x + box + 4, y + 2);
+            y += lh;
+        }
+
+        Item(ColorPartA, "Часть A", false);
+        Item(ColorPartB, "Часть B", false);
+        Item(ColorInternalEdge, "Внутренние рёбра", true);
+        Item(ColorCutEdge, "Межсоединения", true);
+    }
+}

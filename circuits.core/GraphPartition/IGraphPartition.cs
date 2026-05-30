@@ -8,4 +8,6 @@ public interface IGraphPartition
     void SwapVertices(IVertex first, IVertex second);
     int CalculateGain(IVertex first, IVertex second);
     IGraphPart GetPart(IVertex vertex);
+    int GetPartIndex(IVertex vertex);
+    void MoveVertex(IVertex vertex, int toPartIndex);
 }
