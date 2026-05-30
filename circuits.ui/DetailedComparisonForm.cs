@@ -12,6 +12,7 @@ public class DetailedComparisonForm : Form
     private TextBox sizesTextBox = null!;
     private AlgorithmMetricChart iterChart = null!;
     private AlgorithmMetricChart timeChart = null!;
+    private ComparisonChart cutsChart = null!;
     private TabControl tabControl = null!;
 
     public DetailedComparisonForm()
@@ -62,8 +63,13 @@ public class DetailedComparisonForm : Form
         var chartTab = new TabPage("Графики");
         chartTab.Controls.Add(BuildChartsPanel());
 
+        var cutsTab = new TabPage("Межсоединения");
+        cutsChart = new ComparisonChart { Dock = DockStyle.Fill };
+        cutsTab.Controls.Add(cutsChart);
+
         tabControl.TabPages.Add(tableTab);
         tabControl.TabPages.Add(chartTab);
+        tabControl.TabPages.Add(cutsTab);
         outer.Controls.Add(tabControl, 0, 4);
 
         statusLabel = new Label
@@ -342,6 +348,9 @@ public class DetailedComparisonForm : Form
         var fmTimes  = new double[sizes.Length];
         var klIters  = new double[sizes.Length];
         var fmIters  = new double[sizes.Length];
+        var klCuts     = new int[sizes.Length];
+        var fmCuts     = new int[sizes.Length];
+        var edgeCounts = new int[sizes.Length];
 
         await Task.Run(() =>
         {
@@ -393,10 +402,13 @@ public class DetailedComparisonForm : Form
                 double delta = avgKlCut > 0 ? (avgKlCut - avgFmCut) / avgKlCut * 100.0 : 0.0;
 
                 actualSizes[si] = actualN;
-                klTimes[si]  = avgKlMs;
-                fmTimes[si]  = avgFmMs;
-                klIters[si]  = avgKlMoves;
-                fmIters[si]  = avgFmMoves;
+                klTimes[si]    = avgKlMs;
+                fmTimes[si]    = avgFmMs;
+                klIters[si]    = avgKlMoves;
+                fmIters[si]    = avgFmMoves;
+                klCuts[si]     = (int)Math.Round(avgKlCut);
+                fmCuts[si]     = (int)Math.Round(avgFmCut);
+                edgeCounts[si] = edges;
 
                 Invoke(() =>
                 {
@@ -420,6 +432,7 @@ public class DetailedComparisonForm : Form
             {
                 iterChart.SetData(actualSizes, klIters, fmIters, "Итерации (количество ходов)");
                 timeChart.SetData(actualSizes, klTimes, fmTimes, "Время выполнения, мс");
+                cutsChart.SetData(actualSizes, klCuts, fmCuts, edgeCounts);
 
                 string genName = genIdx switch
                 {
